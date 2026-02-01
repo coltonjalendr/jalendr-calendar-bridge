@@ -78,3 +78,38 @@ app.get("/oauth/google/callback", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+app.get("/test/create-event", async (req, res) => {
+  try {
+    const oauth2Client = getOAuthClient();
+
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    const event = {
+      summary: "Jalendr Test Booking",
+      description: "Test event created by Jalendr",
+      start: {
+        dateTime: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+        timeZone: "America/Chicago",
+      },
+      end: {
+        dateTime: new Date(Date.now() + 35 * 60 * 1000).toISOString(),
+        timeZone: "America/Chicago",
+      },
+    };
+
+    const result = await calendar.events.insert({
+      calendarId: "primary",
+      resource: event,
+    });
+
+    res.send(`Event created: ${result.data.htmlLink}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to create event");
+  }
+});
+
