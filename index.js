@@ -1,7 +1,8 @@
 const express = require("express");
 const { google } = require("googleapis");
 
-const app = express();
+const app = express();app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
 
 // -------- ENV --------
