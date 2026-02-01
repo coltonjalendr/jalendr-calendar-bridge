@@ -113,3 +113,62 @@ app.get("/test/create-event", async (req, res) => {
   }
 });
 
+app.post("/book-appointment", async (req, res) => {
+  try {
+    const { name, phone, address, jobType, startTimeISO } = req.body;
+
+    if (!name || !phone || !startTimeISO) {
+      return res.status(400).send("Missing required fields");
+    }
+
+ app.post("/book-appointment", async (req, res) => {
+  try {
+    const { name, phone, address, jobType, startTimeISO } = req.body;
+
+    if (!name || !phone || !startTimeISO) {
+      return res.status(400).send("Missing required fields");
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    const startTime = new Date(startTimeISO);
+    const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+
+    const event = {
+      summary: `Roofing Job – ${name}`,
+      description: `
+Name: ${name}
+Phone: ${phone}
+Address: ${address || "N/A"}
+Job Type: ${jobType || "N/A"}
+      `,
+      start: {
+        dateTime: startTime.toISOString(),
+        timeZone: "America/Chicago",
+      },
+      end: {
+        dateTime: endTime.toISOString(),
+        timeZone: "America/Chicago",
+      },
+    };
+
+    const result = await calendar.events.insert({
+      calendarId: "primary",
+      resource: event,
+    });
+
+    res.json({
+      success: true,
+      eventLink: result.data.htmlLink,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to book appointment");
+  }
+});
+
