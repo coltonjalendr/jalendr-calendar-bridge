@@ -118,9 +118,29 @@ app.post("/book-appointment", async (req, res) => {
   try {
     const { name, phone, address, jobType, startTimeISO } = req.body;
 
-    if (!name || !phone || !startTimeISO) {
-      return res.status(400).send("Missing required fields");
+    if (!name || !phone || !address || !jobType || !startTimeISO) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields: name, phone, address, jobType, startTimeISO",
+      });
     }
+
+    // TODO: Replace this with your real calendar booking logic.
+    return res.status(200).json({
+      status: "ok",
+      message: "Received booking request",
+      data: { name, phone, address, jobType, startTimeISO },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to book appointment",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 
  app.post("/book-appointment", async (req, res) => {
   try {
