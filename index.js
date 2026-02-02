@@ -101,6 +101,18 @@ app.get("/test/create-event", async (req, res) => {
         timeZone: "America/Chicago",
       },
     };
+// Debug: log which Google account this is creating events for
+const tokenResponse = await oauth2Client.getAccessToken();
+const accessToken =
+  (typeof tokenResponse === "string" ? tokenResponse : tokenResponse?.token) ||
+  oauth2Client.credentials.access_token;
+
+if (accessToken) {
+  const tokenInfo = await oauth2Client.getTokenInfo(accessToken);
+  console.log("GOOGLE CALENDAR USER:", tokenInfo.email);
+} else {
+  console.log("NO ACCESS TOKEN AVAILABLE (refresh token may be invalid)");
+}
 
     const result = await calendar.events.insert({
       calendarId: "primary",
