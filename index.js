@@ -75,10 +75,7 @@ app.get("/oauth/google/callback", async (req, res) => {
   }
 });
 
-// ✅ NOTHING BELOW THIS EXCEPT app.listen
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+// -------- Test Create Event --------
 app.get("/test/create-event", async (req, res) => {
   try {
     const oauth2Client = getOAuthClient();
@@ -89,34 +86,35 @@ app.get("/test/create-event", async (req, res) => {
 
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
+    // Use current time + 1 hour for test event
+    const testStartTime = new Date(Date.now() + 60 * 60 * 1000);
+    const testEndTime = new Date(testStartTime.getTime() + 30 * 60 * 1000);
+
     const event = {
       summary: "Jalendr Test Booking",
       description: "Test event created by Jalendr",
-start: {
-  dateTime: new Date(startTimeISO).toISOString(),
-  timeZone: "America/Chicago",
-},
-end: {
-  dateTime: new Date(
-    new Date(startTimeISO).getTime() + 30 * 60 * 1000
-  ).toISOString(),
-  timeZone: "America/Chicago",
-},
-
+      start: {
+        dateTime: testStartTime.toISOString(),
+        timeZone: "America/Chicago",
+      },
+      end: {
+        dateTime: testEndTime.toISOString(),
+        timeZone: "America/Chicago",
       },
     };
-// Debug: log which Google account this is creating events for
-const tokenResponse = await oauth2Client.getAccessToken();
-const accessToken =
-  (typeof tokenResponse === "string" ? tokenResponse : tokenResponse?.token) ||
-  oauth2Client.credentials.access_token;
 
-if (accessToken) {
-  const tokenInfo = await oauth2Client.getTokenInfo(accessToken);
-  console.log("GOOGLE CALENDAR USER:", tokenInfo.email);
-} else {
-  console.log("NO ACCESS TOKEN AVAILABLE (refresh token may be invalid)");
-}
+    // Debug: log which Google account this is creating events for
+    const tokenResponse = await oauth2Client.getAccessToken();
+    const accessToken =
+      (typeof tokenResponse === "string" ? tokenResponse : tokenResponse?.token) ||
+      oauth2Client.credentials.access_token;
+
+    if (accessToken) {
+      const tokenInfo = await oauth2Client.getTokenInfo(accessToken);
+      console.log("GOOGLE CALENDAR USER:", tokenInfo.email);
+    } else {
+      console.log("NO ACCESS TOKEN AVAILABLE (refresh token may be invalid)");
+    }
 
     const result = await calendar.events.insert({
       calendarId: "primary",
@@ -126,44 +124,20 @@ if (accessToken) {
     res.send(`Event created: ${result.data.htmlLink}`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Failed to create event");
-}
+    res.status(500).send("Failed to create event: " + err.message);
+  }
 });
 
+// -------- Book Appointment --------
 app.post("/book-appointment", async (req, res) => {
   try {
     const { name, phone, address, jobType, startTimeISO } = req.body;
 
-    if (!name || !phone || !address || !jobType || !startTimeISO) {
+    if (!name || !phone || !startTimeISO) {
       return res.status(400).json({
         status: "error",
-        message: "Missing required fields: name, phone, address, jobType, startTimeISO",
+        message: "Missing required fields: name, phone, startTimeISO",
       });
-    }
-
-    // TODO: Replace this with your real calendar booking logic.
-    return res.status(200).json({
-      status: "ok",
-      message: "Received booking request",
-      data: { name, phone, address, jobType, startTimeISO },
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to book appointment",
-      error: err?.message || String(err),
-    });
-  }
-});
-
-
- app.post("/book-appointment", async (req, res) => {
-  try {
-    const { name, phone, address, jobType, startTimeISO } = req.body;
-
-    if (!name || !phone || !startTimeISO) {
-      return res.status(400).send("Missing required fields");
     }
 
     const oauth2Client = getOAuthClient();
@@ -205,11 +179,15 @@ Job Type: ${jobType || "N/A"}
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Failed to book appointment");
+    res.status(500).json({
+      status: "error",
+      message: "Failed to book appointment",
+      error: err?.message || String(err),
+    });
   }
 });
 
-
+// -------- Start Server --------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
