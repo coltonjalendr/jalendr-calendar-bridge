@@ -127,7 +127,7 @@ if (accessToken) {
   } catch (err) {
     console.error(err);
     res.status(500).send("Failed to create event");
-  }
+}
 });
 
 app.post("/book-appointment", async (req, res) => {
