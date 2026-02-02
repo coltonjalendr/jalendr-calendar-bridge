@@ -92,13 +92,17 @@ app.get("/test/create-event", async (req, res) => {
     const event = {
       summary: "Jalendr Test Booking",
       description: "Test event created by Jalendr",
-      start: {
-        dateTime: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-        timeZone: "America/Chicago",
-      },
-      end: {
-        dateTime: new Date(Date.now() + 35 * 60 * 1000).toISOString(),
-        timeZone: "America/Chicago",
+start: {
+  dateTime: new Date(startTimeISO).toISOString(),
+  timeZone: "America/Chicago",
+},
+end: {
+  dateTime: new Date(
+    new Date(startTimeISO).getTime() + 30 * 60 * 1000
+  ).toISOString(),
+  timeZone: "America/Chicago",
+},
+
       },
     };
 // Debug: log which Google account this is creating events for
