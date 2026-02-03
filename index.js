@@ -1,7 +1,9 @@
 const express = require("express");
 const { google } = require("googleapis");
+const twilio = require("twilio");
 
-const app = express();app.use(express.json());
+const app = express();
+app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
@@ -10,8 +12,43 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
+// Twilio
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
 // Minimal scope: create/read events (adjust later)
 const SCOPES = ["https://www.googleapis.com/auth/calendar.events"];
+
+// -------- SMS Helper --------
+async function sendConfirmationSMS(phone, name, startTime) {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+    console.log("Twilio not configured, skipping SMS");
+    return null;
+  }
+
+  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+  // Format the date nicely
+  const options = {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/Chicago",
+  };
+  const formattedDate = startTime.toLocaleString("en-US", options);
+
+  const message = await client.messages.create({
+    body: `Hi ${name}! Your appointment with Colton's Roofing is confirmed for ${formattedDate}. We'll see you then!`,
+    from: TWILIO_PHONE_NUMBER,
+    to: phone,
+  });
+
+  console.log("SMS sent:", message.sid);
+  return message.sid;
+}
 
 // -------- OAuth Client --------
 function getOAuthClient() {
@@ -173,9 +210,18 @@ Job Type: ${jobType || "N/A"}
       resource: event,
     });
 
+    // Send SMS confirmation
+    let smsSid = null;
+    try {
+      smsSid = await sendConfirmationSMS(phone, name, startTime);
+    } catch (smsErr) {
+      console.error("SMS failed (booking still succeeded):", smsErr.message);
+    }
+
     res.json({
       success: true,
       eventLink: result.data.htmlLink,
+      smsSent: !!smsSid,
     });
   } catch (err) {
     console.error(err);
