@@ -17,8 +17,11 @@ const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
-// Minimal scope: create/read events (adjust later)
-const SCOPES = ["https://www.googleapis.com/auth/calendar.events"];
+// Calendar scopes: events + read access for availability
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/calendar.readonly",
+];
 
 // -------- SMS Helper --------
 async function sendConfirmationSMS(phone, name, startTime) {
