@@ -181,14 +181,17 @@ app.post("/check-availability", async (req, res) => {
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
     // Default to tomorrow if no date provided
-    const targetDate = date ? new Date(date) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const targetDate = date ? new Date(date + "T00:00:00") : new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Set business hours: 8am - 5pm Central
+    // Set business hours: 8am - 5pm Central Time (UTC-6 in winter, UTC-5 in summer)
+    // Using fixed offset for Central Standard Time (UTC-6)
+    const centralOffset = 6; // hours behind UTC
+
     const dayStart = new Date(targetDate);
-    dayStart.setHours(8, 0, 0, 0);
+    dayStart.setUTCHours(8 + centralOffset, 0, 0, 0); // 8am Central = 14:00 UTC
 
     const dayEnd = new Date(targetDate);
-    dayEnd.setHours(17, 0, 0, 0);
+    dayEnd.setUTCHours(17 + centralOffset, 0, 0, 0); // 5pm Central = 23:00 UTC
 
     // Get busy times from calendar
     const freeBusyResponse = await calendar.freebusy.query({
