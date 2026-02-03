@@ -1,6 +1,7 @@
 const express = require("express");
 const { google } = require("googleapis");
 const twilio = require("twilio");
+const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
 app.use(express.json());
@@ -17,34 +18,51 @@ const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
+// Supabase
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const supabase = createClient(SUPABASE_URL || "", SUPABASE_KEY || "");
+
 // Calendar scopes: events + read access for availability
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/calendar.readonly",
 ];
 
+// -------- Get Client from Database --------
+async function getClient(clientId) {
+  const { data, error } = await supabase
+    .from("clients")
+    .select("*")
+    .eq("id", clientId)
+    .single();
+
+  if (error) throw new Error(`Client not found: ${error.message}`);
+  return data;
+}
+
 // -------- SMS Helper --------
-async function sendConfirmationSMS(phone, name, startTime) {
+async function sendConfirmationSMS(phone, name, startTime, client) {
   if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
     console.log("Twilio not configured, skipping SMS");
     return null;
   }
 
-  const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
-  // Format the date nicely
+  // Format the date nicely using client's timezone
   const options = {
     weekday: "long",
     month: "long",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    timeZone: "America/Chicago",
+    timeZone: client.timezone || "America/Chicago",
   };
   const formattedDate = startTime.toLocaleString("en-US", options);
 
-  const message = await client.messages.create({
-    body: `Hi ${name}! Your appointment with Colton's Roofing is confirmed for ${formattedDate}. We'll see you then!`,
+  const message = await twilioClient.messages.create({
+    body: `Hi ${name}! Your appointment with ${client.company_name} is confirmed for ${formattedDate}. We'll see you then!`,
     from: TWILIO_PHONE_NUMBER,
     to: phone,
   });
@@ -68,7 +86,7 @@ function getOAuthClient() {
   );
 }
 
-// -------- Health check (Railway needs this) --------
+// -------- Health check --------
 app.get("/", (req, res) => {
   res.status(200).send("Jalendr calendar bridge is running ✅");
 });
@@ -77,143 +95,132 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// -------- Start OAuth --------
-// Visit: /oauth/google/start
+// -------- Start OAuth for a Client --------
+// Visit: /oauth/google/start?client_id=xxx
 app.get("/oauth/google/start", (req, res) => {
+  const clientId = req.query.client_id;
+  if (!clientId) {
+    return res.status(400).send("Missing client_id parameter");
+  }
+
   const oauth2Client = getOAuthClient();
 
+  // Pass client_id through state parameter
   const url = oauth2Client.generateAuthUrl({
     access_type: "offline",
     prompt: "consent",
     scope: SCOPES,
+    state: clientId,
   });
 
   return res.redirect(url);
 });
 
 // -------- OAuth Callback --------
-// This MUST match your Google Console redirect URI exactly.
 app.get("/oauth/google/callback", async (req, res) => {
   try {
     const code = req.query.code;
+    const clientId = req.query.state;
+
     if (!code) return res.status(400).send("Missing ?code in callback");
+    if (!clientId) return res.status(400).send("Missing client_id in state");
 
     const oauth2Client = getOAuthClient();
     const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
 
-    // For now: just show tokens so we know it worked.
-    // Later we’ll store them (DB) and use them to create events.
-    return res
-      .status(200)
-      .send(
-        "Google OAuth connected ✅\n\nTokens:\n" + JSON.stringify(tokens, null, 2)
-      );
+    // Store the refresh token in the database for this client
+    const { error } = await supabase
+      .from("clients")
+      .update({ google_refresh_token: tokens.refresh_token })
+      .eq("id", clientId);
+
+    if (error) {
+      console.error("Failed to save token:", error);
+      return res.status(500).send("Failed to save token: " + error.message);
+    }
+
+    return res.status(200).send(
+      `Google Calendar connected ✅\n\nClient ${clientId} is now set up!`
+    );
   } catch (err) {
     console.error(err);
     return res.status(500).send("OAuth callback failed: " + err.message);
   }
 });
 
-// -------- Test Create Event --------
-app.get("/test/create-event", async (req, res) => {
-  try {
-    const oauth2Client = getOAuthClient();
-
-    oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
-    });
-
-    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
-
-    // Use current time + 1 hour for test event
-    const testStartTime = new Date(Date.now() + 60 * 60 * 1000);
-    const testEndTime = new Date(testStartTime.getTime() + 30 * 60 * 1000);
-
-    const event = {
-      summary: "Jalendr Test Booking",
-      description: "Test event created by Jalendr",
-      start: {
-        dateTime: testStartTime.toISOString(),
-        timeZone: "America/Chicago",
-      },
-      end: {
-        dateTime: testEndTime.toISOString(),
-        timeZone: "America/Chicago",
-      },
-    };
-
-    // Debug: log which Google account this is creating events for
-    const tokenResponse = await oauth2Client.getAccessToken();
-    const accessToken =
-      (typeof tokenResponse === "string" ? tokenResponse : tokenResponse?.token) ||
-      oauth2Client.credentials.access_token;
-
-    if (accessToken) {
-      const tokenInfo = await oauth2Client.getTokenInfo(accessToken);
-      console.log("GOOGLE CALENDAR USER:", tokenInfo.email);
-    } else {
-      console.log("NO ACCESS TOKEN AVAILABLE (refresh token may be invalid)");
-    }
-
-    const result = await calendar.events.insert({
-      calendarId: "primary",
-      resource: event,
-    });
-
-    res.send(`Event created: ${result.data.htmlLink}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Failed to create event: " + err.message);
-  }
-});
-
 // -------- Check Availability --------
 app.post("/check-availability", async (req, res) => {
   try {
-    const { date } = req.body; // ISO date string like "2026-02-05"
+    const { client_id, date } = req.body;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing client_id",
+      });
+    }
+
+    // Get client from database
+    const client = await getClient(client_id);
+
+    if (!client.google_refresh_token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Client has not connected their Google Calendar",
+      });
+    }
 
     const oauth2Client = getOAuthClient();
     oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+      refresh_token: client.google_refresh_token,
     });
 
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
     // Default to tomorrow if no date provided
-    const targetDate = date ? new Date(date + "T00:00:00") : new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const targetDate = date
+      ? new Date(date + "T00:00:00")
+      : new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    // Set business hours: 8am - 5pm Central Time (UTC-6 in winter, UTC-5 in summer)
-    // Using fixed offset for Central Standard Time (UTC-6)
-    const centralOffset = 6; // hours behind UTC
+    // Parse client's business hours
+    const [startHour] = (client.hours_start || "08:00").split(":").map(Number);
+    const [endHour] = (client.hours_end || "17:00").split(":").map(Number);
+
+    // Calculate timezone offset (simplified - assumes US timezones)
+    const tzOffsets = {
+      "America/New_York": 5,
+      "America/Chicago": 6,
+      "America/Denver": 7,
+      "America/Los_Angeles": 8,
+    };
+    const offset = tzOffsets[client.timezone] || 6;
 
     const dayStart = new Date(targetDate);
-    dayStart.setUTCHours(8 + centralOffset, 0, 0, 0); // 8am Central = 14:00 UTC
+    dayStart.setUTCHours(startHour + offset, 0, 0, 0);
 
     const dayEnd = new Date(targetDate);
-    dayEnd.setUTCHours(17 + centralOffset, 0, 0, 0); // 5pm Central = 23:00 UTC
+    dayEnd.setUTCHours(endHour + offset, 0, 0, 0);
 
     // Get busy times from calendar
     const freeBusyResponse = await calendar.freebusy.query({
       requestBody: {
         timeMin: dayStart.toISOString(),
         timeMax: dayEnd.toISOString(),
-        timeZone: "America/Chicago",
+        timeZone: client.timezone || "America/Chicago",
         items: [{ id: "primary" }],
       },
     });
 
     const busySlots = freeBusyResponse.data.calendars.primary.busy || [];
 
-    // Generate available 1-hour slots
+    // Generate available slots based on client's appointment duration
     const availableSlots = [];
-    const slotDuration = 60 * 60 * 1000; // 1 hour in ms
+    const slotDuration = (client.appointment_duration_minutes || 60) * 60 * 1000;
 
     for (let time = dayStart.getTime(); time + slotDuration <= dayEnd.getTime(); time += slotDuration) {
       const slotStart = new Date(time);
       const slotEnd = new Date(time + slotDuration);
 
-      // Check if this slot overlaps with any busy time
       const isAvailable = !busySlots.some((busy) => {
         const busyStart = new Date(busy.start);
         const busyEnd = new Date(busy.end);
@@ -229,7 +236,7 @@ app.post("/check-availability", async (req, res) => {
             day: "numeric",
             hour: "numeric",
             minute: "2-digit",
-            timeZone: "America/Chicago",
+            timeZone: client.timezone || "America/Chicago",
           }),
         });
       }
@@ -239,9 +246,10 @@ app.post("/check-availability", async (req, res) => {
       success: true,
       date: targetDate.toISOString().split("T")[0],
       availableSlots,
-      message: availableSlots.length > 0
-        ? `Found ${availableSlots.length} available slots`
-        : "No availability on this date",
+      message:
+        availableSlots.length > 0
+          ? `Found ${availableSlots.length} available slots`
+          : "No availability on this date",
     });
   } catch (err) {
     console.error(err);
@@ -256,7 +264,14 @@ app.post("/check-availability", async (req, res) => {
 // -------- Book Appointment --------
 app.post("/book-appointment", async (req, res) => {
   try {
-    const { name, phone, address, jobType, startTimeISO } = req.body;
+    const { client_id, name, phone, address, jobType, startTimeISO } = req.body;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing client_id",
+      });
+    }
 
     if (!name || !phone || !startTimeISO) {
       return res.status(400).json({
@@ -265,31 +280,43 @@ app.post("/book-appointment", async (req, res) => {
       });
     }
 
+    // Get client from database
+    const client = await getClient(client_id);
+
+    if (!client.google_refresh_token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Client has not connected their Google Calendar",
+      });
+    }
+
     const oauth2Client = getOAuthClient();
     oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+      refresh_token: client.google_refresh_token,
     });
 
     const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
     const startTime = new Date(startTimeISO);
-    const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+    const duration = (client.appointment_duration_minutes || 60) * 60 * 1000;
+    const endTime = new Date(startTime.getTime() + duration);
 
     const event = {
-      summary: `Roofing Job – ${name}`,
+      summary: `${jobType || "Service"} – ${name}`,
       description: `
 Name: ${name}
 Phone: ${phone}
 Address: ${address || "N/A"}
 Job Type: ${jobType || "N/A"}
+Booked via Jalendr
       `,
       start: {
         dateTime: startTime.toISOString(),
-        timeZone: "America/Chicago",
+        timeZone: client.timezone || "America/Chicago",
       },
       end: {
         dateTime: endTime.toISOString(),
-        timeZone: "America/Chicago",
+        timeZone: client.timezone || "America/Chicago",
       },
     };
 
@@ -301,7 +328,7 @@ Job Type: ${jobType || "N/A"}
     // Send SMS confirmation
     let smsSid = null;
     try {
-      smsSid = await sendConfirmationSMS(phone, name, startTime);
+      smsSid = await sendConfirmationSMS(phone, name, startTime, client);
     } catch (smsErr) {
       console.error("SMS failed (booking still succeeded):", smsErr.message);
     }
@@ -321,8 +348,88 @@ Job Type: ${jobType || "N/A"}
   }
 });
 
+// -------- List Clients (Admin) --------
+app.get("/admin/clients", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("id, company_name, owner_name, email, phone_number, timezone, created_at");
+
+    if (error) throw error;
+
+    res.json({ success: true, clients: data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to list clients",
+      error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Create Client (Admin) --------
+app.post("/admin/clients", async (req, res) => {
+  try {
+    const {
+      company_name,
+      owner_name,
+      email,
+      phone_number,
+      timezone,
+      hours_start,
+      hours_end,
+      appointment_duration_minutes,
+      job_types,
+      greeting_name,
+    } = req.body;
+
+    if (!company_name) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required field: company_name",
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("clients")
+      .insert({
+        company_name,
+        owner_name,
+        email,
+        phone_number,
+        timezone: timezone || "America/Chicago",
+        hours_start: hours_start || "08:00",
+        hours_end: hours_end || "17:00",
+        appointment_duration_minutes: appointment_duration_minutes || 60,
+        job_types: job_types || ["General Service"],
+        greeting_name: greeting_name || "Jalendr",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    // Generate the OAuth URL for this client
+    const oauthUrl = `${process.env.BASE_URL || "https://industrious-clarity-production.up.railway.app"}/oauth/google/start?client_id=${data.id}`;
+
+    res.json({
+      success: true,
+      client: data,
+      oauthUrl,
+      message: `Client created! Send them this link to connect their Google Calendar: ${oauthUrl}`,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to create client",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- Start Server --------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
