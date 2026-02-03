@@ -348,6 +348,205 @@ Booked via Jalendr
   }
 });
 
+// -------- Get Customer Appointments --------
+app.post("/get-appointments", async (req, res) => {
+  try {
+    const { client_id, phone } = req.body;
+
+    if (!client_id || !phone) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields: client_id, phone",
+      });
+    }
+
+    const client = await getClient(client_id);
+
+    if (!client.google_refresh_token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Client has not connected their Google Calendar",
+      });
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: client.google_refresh_token,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    // Search for events in the next 30 days that contain this phone number
+    const now = new Date();
+    const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: now.toISOString(),
+      timeMax: thirtyDaysLater.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+      q: phone, // Search by phone number in event description
+    });
+
+    const appointments = (response.data.items || []).map((event) => ({
+      eventId: event.id,
+      summary: event.summary,
+      start: event.start.dateTime,
+      startFormatted: new Date(event.start.dateTime).toLocaleString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: client.timezone || "America/Chicago",
+      }),
+      description: event.description,
+    }));
+
+    res.json({
+      success: true,
+      appointments,
+      message: appointments.length > 0
+        ? `Found ${appointments.length} upcoming appointment(s)`
+        : "No upcoming appointments found for this phone number",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get appointments",
+      error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Cancel Appointment --------
+app.post("/cancel-appointment", async (req, res) => {
+  try {
+    const { client_id, eventId } = req.body;
+
+    if (!client_id || !eventId) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields: client_id, eventId",
+      });
+    }
+
+    const client = await getClient(client_id);
+
+    if (!client.google_refresh_token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Client has not connected their Google Calendar",
+      });
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: client.google_refresh_token,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    await calendar.events.delete({
+      calendarId: "primary",
+      eventId: eventId,
+    });
+
+    res.json({
+      success: true,
+      message: "Appointment cancelled successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to cancel appointment",
+      error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Reschedule Appointment --------
+app.post("/reschedule-appointment", async (req, res) => {
+  try {
+    const { client_id, eventId, newStartTimeISO } = req.body;
+
+    if (!client_id || !eventId || !newStartTimeISO) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required fields: client_id, eventId, newStartTimeISO",
+      });
+    }
+
+    const client = await getClient(client_id);
+
+    if (!client.google_refresh_token) {
+      return res.status(400).json({
+        status: "error",
+        message: "Client has not connected their Google Calendar",
+      });
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: client.google_refresh_token,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    // Get the existing event
+    const existingEvent = await calendar.events.get({
+      calendarId: "primary",
+      eventId: eventId,
+    });
+
+    // Calculate new end time based on client's appointment duration
+    const newStartTime = new Date(newStartTimeISO);
+    const duration = (client.appointment_duration_minutes || 60) * 60 * 1000;
+    const newEndTime = new Date(newStartTime.getTime() + duration);
+
+    // Update the event with new times
+    const updatedEvent = await calendar.events.update({
+      calendarId: "primary",
+      eventId: eventId,
+      resource: {
+        ...existingEvent.data,
+        start: {
+          dateTime: newStartTime.toISOString(),
+          timeZone: client.timezone || "America/Chicago",
+        },
+        end: {
+          dateTime: newEndTime.toISOString(),
+          timeZone: client.timezone || "America/Chicago",
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Appointment rescheduled successfully",
+      newTime: newStartTime.toLocaleString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: client.timezone || "America/Chicago",
+      }),
+      eventLink: updatedEvent.data.htmlLink,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to reschedule appointment",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- List Clients (Admin) --------
 app.get("/admin/clients", async (req, res) => {
   try {
