@@ -165,6 +165,88 @@ app.get("/test/create-event", async (req, res) => {
   }
 });
 
+// -------- Check Availability --------
+app.post("/check-availability", async (req, res) => {
+  try {
+    const { date } = req.body; // ISO date string like "2026-02-05"
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    // Default to tomorrow if no date provided
+    const targetDate = date ? new Date(date) : new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    // Set business hours: 8am - 5pm Central
+    const dayStart = new Date(targetDate);
+    dayStart.setHours(8, 0, 0, 0);
+
+    const dayEnd = new Date(targetDate);
+    dayEnd.setHours(17, 0, 0, 0);
+
+    // Get busy times from calendar
+    const freeBusyResponse = await calendar.freebusy.query({
+      requestBody: {
+        timeMin: dayStart.toISOString(),
+        timeMax: dayEnd.toISOString(),
+        timeZone: "America/Chicago",
+        items: [{ id: "primary" }],
+      },
+    });
+
+    const busySlots = freeBusyResponse.data.calendars.primary.busy || [];
+
+    // Generate available 1-hour slots
+    const availableSlots = [];
+    const slotDuration = 60 * 60 * 1000; // 1 hour in ms
+
+    for (let time = dayStart.getTime(); time + slotDuration <= dayEnd.getTime(); time += slotDuration) {
+      const slotStart = new Date(time);
+      const slotEnd = new Date(time + slotDuration);
+
+      // Check if this slot overlaps with any busy time
+      const isAvailable = !busySlots.some((busy) => {
+        const busyStart = new Date(busy.start);
+        const busyEnd = new Date(busy.end);
+        return slotStart < busyEnd && slotEnd > busyStart;
+      });
+
+      if (isAvailable) {
+        availableSlots.push({
+          start: slotStart.toISOString(),
+          startFormatted: slotStart.toLocaleString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            timeZone: "America/Chicago",
+          }),
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      date: targetDate.toISOString().split("T")[0],
+      availableSlots,
+      message: availableSlots.length > 0
+        ? `Found ${availableSlots.length} available slots`
+        : "No availability on this date",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to check availability",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- Book Appointment --------
 app.post("/book-appointment", async (req, res) => {
   try {
