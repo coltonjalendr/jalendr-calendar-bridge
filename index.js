@@ -547,6 +547,81 @@ app.post("/reschedule-appointment", async (req, res) => {
   }
 });
 
+// -------- Save Lead --------
+app.post("/save-lead", async (req, res) => {
+  try {
+    const { client_id, name, phone, address, job_type, notes } = req.body;
+
+    if (!client_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing required field: client_id",
+      });
+    }
+
+    // Save lead to database
+    const { data, error } = await supabase
+      .from("leads")
+      .insert({
+        client_id,
+        name: name || null,
+        phone: phone || null,
+        address: address || null,
+        job_type: job_type || null,
+        notes: notes || null,
+        status: "new",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    console.log("Lead saved:", data.id);
+
+    res.json({
+      success: true,
+      leadId: data.id,
+      message: "Lead saved successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to save lead",
+      error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Get Leads (Admin) --------
+app.get("/admin/leads", async (req, res) => {
+  try {
+    const { client_id } = req.query;
+
+    let query = supabase
+      .from("leads")
+      .select("*, clients(company_name)")
+      .order("created_at", { ascending: false });
+
+    if (client_id) {
+      query = query.eq("client_id", client_id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    res.json({ success: true, leads: data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get leads",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- List Clients (Admin) --------
 app.get("/admin/clients", async (req, res) => {
   try {
