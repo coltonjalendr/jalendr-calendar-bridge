@@ -26,6 +26,28 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const supabase = createClient(SUPABASE_URL || "", SUPABASE_KEY || "");
 
+// Admin API Key
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+// -------- Admin Auth Middleware --------
+function requireAdminAuth(req, res, next) {
+  const apiKey = req.headers["x-api-key"];
+
+  if (!ADMIN_API_KEY) {
+    // If no key is set, allow access (for backwards compatibility)
+    return next();
+  }
+
+  if (!apiKey || apiKey !== ADMIN_API_KEY) {
+    return res.status(401).json({
+      status: "error",
+      message: "Unauthorized - invalid or missing API key"
+    });
+  }
+
+  next();
+}
+
 // Calendar scopes: events + read access for availability
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
@@ -597,7 +619,7 @@ app.post("/save-lead", async (req, res) => {
 });
 
 // -------- Get Leads (Admin) --------
-app.get("/admin/leads", async (req, res) => {
+app.get("/admin/leads", requireAdminAuth, async (req, res) => {
   try {
     const { client_id } = req.query;
 
@@ -626,7 +648,7 @@ app.get("/admin/leads", async (req, res) => {
 });
 
 // -------- List Clients (Admin) --------
-app.get("/admin/clients", async (req, res) => {
+app.get("/admin/clients", requireAdminAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("clients")
@@ -646,7 +668,7 @@ app.get("/admin/clients", async (req, res) => {
 });
 
 // -------- Create Client (Admin) --------
-app.post("/admin/clients", async (req, res) => {
+app.post("/admin/clients", requireAdminAuth, async (req, res) => {
   try {
     const {
       company_name,
