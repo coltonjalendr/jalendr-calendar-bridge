@@ -585,9 +585,18 @@
 
     .industries-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       margin-top: 48px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 600px) {
+      .industries-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .industry-card {
