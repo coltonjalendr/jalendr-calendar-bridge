@@ -759,10 +759,90 @@
       font-size: 14px;
     }
 
-    /* Mobile */
+    /* Mobile Menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 10px;
+      z-index: 1001;
+    }
+
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
     @media (max-width: 768px) {
+      .hamburger {
+        display: flex;
+      }
+
       .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: var(--primary);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 32px 32px;
+        gap: 24px;
+        transition: right 0.3s ease;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .nav-links a {
+        font-size: 18px;
+        width: 100%;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+
+      .nav-links .btn {
+        margin-top: 16px;
+        width: 100%;
+        text-align: center;
+        border-bottom: none;
+      }
+
+      .mobile-overlay {
         display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+
+      .mobile-overlay.active {
+        display: block;
+      }
+
+      header {
+        z-index: 1000;
       }
 
       .hero {
@@ -857,15 +937,21 @@
 </head>
 <body>
   <!-- Header -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
   <header>
     <nav class="container">
       <a href="/" class="logo">Jalen<span>dr</span></a>
-      <div class="nav-links">
+      <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#industries">Industries</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#faq">FAQ</a>
         <a href="#demo" class="btn btn-white">Try Demo</a>
+      </div>
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
     </nav>
   </header>
@@ -1168,6 +1254,30 @@
         }
       }
       e.target.value = value;
+    });
+
+    // Mobile Menu Toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function toggleMenu() {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('active');
+      mobileOverlay.classList.toggle('active');
+      document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    }
+
+    hamburger.addEventListener('click', toggleMenu);
+    mobileOverlay.addEventListener('click', toggleMenu);
+
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (navLinks.classList.contains('active')) {
+          toggleMenu();
+        }
+      });
     });
 
     // Scroll Reveal Animations
