@@ -17,8 +17,8 @@
 
     :root {
       --primary: #1a1a2e;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
+      --accent: #ffffff;
+      --accent-hover: #e2e8f0;
       --secondary: #64748b;
       --background: #fafafa;
       --success: #10b981;
@@ -66,7 +66,7 @@
     }
 
     .logo span {
-      color: var(--accent);
+      color: var(--gray-200);
     }
 
     .nav-links {
@@ -102,12 +102,23 @@
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: var(--primary);
+      background: var(--primary);
+      color: var(--white);
     }
 
     .btn-primary:hover {
-      background: var(--accent-hover);
+      background: #2a2a4e;
+      transform: translateY(-1px);
+    }
+
+    /* White button variant for dark backgrounds */
+    .btn-white {
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    .btn-white:hover {
+      background: var(--gray-100);
       transform: translateY(-1px);
     }
 
@@ -168,7 +179,7 @@
     }
 
     .trust-badge span {
-      color: var(--accent);
+      color: var(--white);
       font-weight: 600;
     }
 
@@ -213,7 +224,7 @@
 
     .demo-badge {
       display: inline-block;
-      background: var(--accent);
+      background: var(--white);
       color: var(--primary);
       font-size: 12px;
       font-weight: 700;
@@ -249,7 +260,7 @@
       justify-content: center;
       gap: 16px;
       background: rgba(255,255,255,0.1);
-      border: 2px solid var(--accent);
+      border: 2px solid rgba(255,255,255,0.3);
       border-radius: 16px;
       padding: 20px 32px;
       transition: all 0.3s;
@@ -257,13 +268,14 @@
 
     .demo-phone:hover {
       background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.5);
       transform: scale(1.02);
     }
 
     .phone-icon {
       width: 48px;
       height: 48px;
-      background: var(--accent);
+      background: var(--white);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -328,13 +340,13 @@
     }
 
     .demo-callback input:focus {
-      border-color: var(--accent);
+      border-color: rgba(255,255,255,0.5);
       background: rgba(255,255,255,0.15);
     }
 
     .demo-callback button {
       padding: 16px 24px;
-      background: var(--accent);
+      background: var(--white);
       color: var(--primary);
       border: none;
       border-radius: 10px;
@@ -346,7 +358,7 @@
     }
 
     .demo-callback button:hover {
-      background: var(--accent-hover);
+      background: var(--gray-100);
       transform: translateY(-1px);
     }
 
@@ -407,8 +419,9 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 1.5px;
-      color: var(--accent);
+      color: var(--primary);
       margin-bottom: 16px;
+      opacity: 0.7;
     }
 
     .section-title {
@@ -477,7 +490,8 @@
     }
 
     .features .section-label {
-      color: var(--accent);
+      color: var(--white);
+      opacity: 0.7;
     }
 
     .features .section-title {
@@ -510,7 +524,7 @@
     .feature-icon {
       width: 48px;
       height: 48px;
-      background: var(--accent);
+      background: rgba(255,255,255,0.15);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -552,14 +566,14 @@
     .step-number {
       width: 64px;
       height: 64px;
-      background: var(--accent);
+      background: var(--primary);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28px;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--white);
       margin: 0 auto 24px;
     }
 
@@ -609,7 +623,7 @@
     }
 
     .industry-card:hover {
-      border-color: var(--accent);
+      border-color: var(--primary);
       transform: translateY(-2px);
     }
 
@@ -676,7 +690,7 @@
     .faq-question::after {
       content: '+';
       font-size: 24px;
-      color: var(--accent);
+      color: var(--primary);
       transition: transform 0.2s;
     }
 
@@ -719,7 +733,7 @@
     }
 
     .footer-logo span {
-      color: var(--accent);
+      color: var(--gray-200);
     }
 
     .footer-links {
@@ -849,7 +863,7 @@
         <a href="#industries">Industries</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#faq">FAQ</a>
-        <a href="#demo" class="btn btn-primary">Try Demo</a>
+        <a href="#demo" class="btn btn-white">Try Demo</a>
       </div>
     </nav>
   </header>
@@ -860,7 +874,7 @@
       <h1>Never Miss Another<br><span>Service Call</span></h1>
       <p>AI phone receptionist that books jobs to your calendar 24/7. Built for roofers, HVAC techs, plumbers, and contractors.</p>
       <div class="hero-cta">
-        <a href="#demo" class="btn btn-primary btn-large">Try a Demo Call</a>
+        <a href="#demo" class="btn btn-white btn-large">Try a Demo Call</a>
         <a href="#how-it-works" class="btn btn-secondary btn-large">See How It Works</a>
       </div>
       <p class="trust-badge">Trusted by <span>home service businesses</span> across the country</p>
@@ -1038,7 +1052,7 @@
     <div class="container">
       <h2 class="reveal">Ready to stop missing calls?</h2>
       <p class="reveal">See how Jalendr works with a free demo call. No credit card required.</p>
-      <a href="#demo" class="btn btn-primary btn-large reveal">Try a Demo Call</a>
+      <a href="#demo" class="btn btn-white btn-large reveal">Try a Demo Call</a>
     </div>
   </section>
 
