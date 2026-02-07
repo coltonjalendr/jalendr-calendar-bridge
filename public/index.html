@@ -774,25 +774,69 @@
       }
     }
 
-    /* Animations */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    /* Scroll Animations */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
     }
 
-    .animate {
-      animation: fadeInUp 0.6s ease-out forwards;
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .delay-1 { animation-delay: 0.1s; }
-    .delay-2 { animation-delay: 0.2s; }
-    .delay-3 { animation-delay: 0.3s; }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Staggered children animations */
+    .stagger-children > * {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+    }
+
+    .stagger-children.visible > *:nth-child(1) { transition-delay: 0.1s; }
+    .stagger-children.visible > *:nth-child(2) { transition-delay: 0.2s; }
+    .stagger-children.visible > *:nth-child(3) { transition-delay: 0.3s; }
+    .stagger-children.visible > *:nth-child(4) { transition-delay: 0.4s; }
+    .stagger-children.visible > *:nth-child(5) { transition-delay: 0.5s; }
+    .stagger-children.visible > *:nth-child(6) { transition-delay: 0.6s; }
+
+    .stagger-children.visible > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -826,7 +870,7 @@
   <!-- Demo Section -->
   <section class="demo-section" id="demo">
     <div class="container">
-      <div class="demo-card">
+      <div class="demo-card reveal-scale">
         <span class="demo-badge">Try It Live</span>
         <h2>Hear Jalendr in action</h2>
         <p>Call our demo line and experience exactly what your customers will hear.</p>
@@ -857,11 +901,11 @@
   <!-- Problem Section -->
   <section class="problem">
     <div class="container">
-      <p class="section-label">The Problem</p>
-      <h2 class="section-title">Every missed call is a lost job</h2>
-      <p class="section-subtitle">You're busy on the roof or under a sink. Your phone rings. Another opportunity gone.</p>
+      <p class="section-label reveal">The Problem</p>
+      <h2 class="section-title reveal">Every missed call is a lost job</h2>
+      <p class="section-subtitle reveal">You're busy on the roof or under a sink. Your phone rings. Another opportunity gone.</p>
 
-      <div class="problem-grid">
+      <div class="problem-grid stagger-children">
         <div class="problem-card">
           <div class="problem-icon">📞</div>
           <h3>Miss a call during a job</h3>
@@ -887,11 +931,11 @@
   <!-- Features Section -->
   <section class="features" id="features">
     <div class="container">
-      <p class="section-label">Features</p>
-      <h2 class="section-title">Your 24/7 receptionist that actually books jobs</h2>
-      <p class="section-subtitle">Not a voicemail. Not a call center. An AI that handles calls like your best employee.</p>
+      <p class="section-label reveal">Features</p>
+      <h2 class="section-title reveal">Your 24/7 receptionist that actually books jobs</h2>
+      <p class="section-subtitle reveal">Not a voicemail. Not a call center. An AI that handles calls like your best employee.</p>
 
-      <div class="features-grid">
+      <div class="features-grid stagger-children">
         <div class="feature-card">
           <div class="feature-icon">📞</div>
           <h3>Answers Every Call</h3>
@@ -929,11 +973,11 @@
   <!-- How It Works -->
   <section class="how-it-works" id="how-it-works">
     <div class="container">
-      <p class="section-label">How It Works</p>
-      <h2 class="section-title">Up and running in under 5 minutes</h2>
-      <p class="section-subtitle">No complicated setup. No contracts. Just more booked jobs.</p>
+      <p class="section-label reveal">How It Works</p>
+      <h2 class="section-title reveal">Up and running in under 5 minutes</h2>
+      <p class="section-subtitle reveal">No complicated setup. No contracts. Just more booked jobs.</p>
 
-      <div class="steps">
+      <div class="steps stagger-children">
         <div class="step">
           <div class="step-number">1</div>
           <h3>Connect Your Calendar</h3>
@@ -956,11 +1000,11 @@
   <!-- Industries -->
   <section class="industries" id="industries">
     <div class="container">
-      <p class="section-label">Industries</p>
-      <h2 class="section-title">Built for the trades</h2>
-      <p class="section-subtitle">We understand home service businesses because that's all we focus on.</p>
+      <p class="section-label reveal">Industries</p>
+      <h2 class="section-title reveal">Built for the trades</h2>
+      <p class="section-subtitle reveal">We understand home service businesses because that's all we focus on.</p>
 
-      <div class="industries-grid">
+      <div class="industries-grid stagger-children">
         <div class="industry-card">
           <div class="industry-icon">🏠</div>
           <h3>Roofing</h3>
@@ -992,19 +1036,19 @@
   <!-- CTA Section -->
   <section class="cta-section">
     <div class="container">
-      <h2>Ready to stop missing calls?</h2>
-      <p>See how Jalendr works with a free demo call. No credit card required.</p>
-      <a href="#demo" class="btn btn-primary btn-large">Try a Demo Call</a>
+      <h2 class="reveal">Ready to stop missing calls?</h2>
+      <p class="reveal">See how Jalendr works with a free demo call. No credit card required.</p>
+      <a href="#demo" class="btn btn-primary btn-large reveal">Try a Demo Call</a>
     </div>
   </section>
 
   <!-- FAQ -->
   <section class="faq" id="faq">
     <div class="container">
-      <p class="section-label">FAQ</p>
-      <h2 class="section-title">Common questions</h2>
+      <p class="section-label reveal">FAQ</p>
+      <h2 class="section-title reveal">Common questions</h2>
 
-      <div class="faq-grid">
+      <div class="faq-grid stagger-children">
         <div class="faq-item">
           <div class="faq-question">How does it know my availability?</div>
           <div class="faq-answer">Jalendr syncs directly with your Google Calendar. It checks your existing appointments in real-time and only offers times when you're actually free.</div>
@@ -1108,6 +1152,26 @@
         }
       }
       e.target.value = value;
+    });
+
+    // Scroll Reveal Animations
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const revealOnScroll = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe all elements with reveal classes
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children').forEach(el => {
+      revealOnScroll.observe(el);
     });
   </script>
 </body>
