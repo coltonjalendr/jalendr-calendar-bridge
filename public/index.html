@@ -419,16 +419,28 @@
     .comparison-table {
       width: 100%;
       max-width: 900px;
-      margin: 48px auto 0;
+      margin: 64px auto 0;
       border-collapse: collapse;
       background: var(--white);
       border-radius: 16px;
-      overflow: hidden;
+      overflow: visible;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
     .comparison-table thead {
       background: var(--primary);
+    }
+
+    .comparison-table thead tr {
+      border-radius: 16px 16px 0 0;
+    }
+
+    .comparison-table thead th:first-child {
+      border-radius: 16px 0 0 0;
+    }
+
+    .comparison-table thead th:last-child {
+      border-radius: 0 16px 0 0;
     }
 
     .comparison-table th {
@@ -483,6 +495,14 @@
 
     .comparison-table tbody tr:last-child td {
       border-bottom: none;
+    }
+
+    .comparison-table tbody tr:last-child td:first-child {
+      border-radius: 0 0 0 16px;
+    }
+
+    .comparison-table tbody tr:last-child td:last-child {
+      border-radius: 0 0 16px 0;
     }
 
     .comparison-table tbody tr:hover {
