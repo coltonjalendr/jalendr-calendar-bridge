@@ -410,6 +410,129 @@
       }
     }
 
+    /* Comparison Table */
+    .comparison {
+      padding: 100px 0;
+      background: var(--gray-100);
+    }
+
+    .comparison-table {
+      width: 100%;
+      max-width: 900px;
+      margin: 48px auto 0;
+      border-collapse: collapse;
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .comparison-table thead {
+      background: var(--primary);
+    }
+
+    .comparison-table th {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--white);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .comparison-table th:first-child {
+      text-align: left;
+      padding-left: 24px;
+    }
+
+    .comparison-table th.highlight {
+      background: #2a2a4e;
+      position: relative;
+    }
+
+    .comparison-table th.highlight::before {
+      content: 'BEST';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--success);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 10px;
+    }
+
+    .comparison-table td {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 14px;
+      color: var(--gray-800);
+    }
+
+    .comparison-table td:first-child {
+      text-align: left;
+      padding-left: 24px;
+      font-weight: 500;
+    }
+
+    .comparison-table td.highlight {
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table tbody tr:hover {
+      background: var(--gray-100);
+    }
+
+    .comparison-table tbody tr:hover td.highlight {
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .check {
+      color: var(--success);
+      font-size: 20px;
+    }
+
+    .cross {
+      color: #ef4444;
+      font-size: 20px;
+    }
+
+    .partial {
+      color: var(--secondary);
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .comparison-table {
+        font-size: 12px;
+        margin: 48px -12px 0;
+        width: calc(100% + 24px);
+        border-radius: 0;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px 8px;
+      }
+
+      .comparison-table th:first-child,
+      .comparison-table td:first-child {
+        padding-left: 12px;
+      }
+
+      .comparison-table th.highlight::before {
+        font-size: 8px;
+        padding: 3px 8px;
+        top: -10px;
+      }
+    }
+
     /* Problem Section */
     .problem {
       padding: 100px 0;
@@ -1027,6 +1150,85 @@
           <p class="problem-stat">$48,000/year</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="comparison">
+    <div class="container">
+      <p class="section-label reveal">Compare</p>
+      <h2 class="section-title reveal">How Jalendr stacks up</h2>
+      <p class="section-subtitle reveal">See why AI beats the alternatives.</p>
+
+      <table class="comparison-table reveal">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="highlight">Jalendr</th>
+            <th>Receptionist</th>
+            <th>Voicemail</th>
+            <th>Call Center</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>24/7 availability</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Books to your calendar</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="partial">Sometimes</span></td>
+          </tr>
+          <tr>
+            <td>Knows your availability</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="partial">If updated</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Captures job details</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="partial">If they leave one</span></td>
+            <td><span class="partial">Basic</span></td>
+          </tr>
+          <tr>
+            <td>Handles reschedules</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>No training required</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+          </tr>
+          <tr>
+            <td>Never calls in sick</td>
+            <td class="highlight"><span class="check">✓</span></td>
+            <td><span class="cross">✗</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td>Monthly cost</td>
+            <td class="highlight"><strong>~$99</strong></td>
+            <td>$4,000+</td>
+            <td>Free</td>
+            <td>$300-500</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
