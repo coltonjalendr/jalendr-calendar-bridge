@@ -29,6 +29,10 @@ const supabase = createClient(SUPABASE_URL || "", SUPABASE_KEY || "");
 // Admin API Key
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
+// Demo config
+const DEMO_PHONE_NUMBER = process.env.DEMO_PHONE_NUMBER; // The Twilio number for demo calls
+const DEMO_WEBHOOK_URL = process.env.DEMO_WEBHOOK_URL; // LiveKit agent webhook for demo
+
 // -------- Admin Auth Middleware --------
 function requireAdminAuth(req, res, next) {
   const apiKey = req.headers["x-api-key"];
@@ -723,6 +727,80 @@ app.post("/admin/clients", requireAdminAuth, async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Failed to create client",
+      error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Demo Call (Website Callback) --------
+app.post("/api/demo-call", async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing phone number",
+      });
+    }
+
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !DEMO_PHONE_NUMBER) {
+      return res.status(500).json({
+        status: "error",
+        message: "Demo calling not configured",
+      });
+    }
+
+    const twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+
+    // Format phone number
+    let formattedPhone = phone.replace(/\D/g, "");
+    if (formattedPhone.length === 10) {
+      formattedPhone = "+1" + formattedPhone;
+    } else if (!formattedPhone.startsWith("+")) {
+      formattedPhone = "+" + formattedPhone;
+    }
+
+    // Create outbound call
+    // If DEMO_WEBHOOK_URL is set, it forwards to LiveKit agent
+    // Otherwise, uses TwiML to play a demo message
+    const callOptions = {
+      to: formattedPhone,
+      from: DEMO_PHONE_NUMBER,
+    };
+
+    if (DEMO_WEBHOOK_URL) {
+      callOptions.url = DEMO_WEBHOOK_URL;
+    } else {
+      // Fallback: play a demo message
+      callOptions.twiml = `
+        <Response>
+          <Say voice="Polly.Matthew">
+            Hi! Thanks for trying Jalendr.
+            This is a demo of our A.I. phone receptionist.
+            In a real setup, I would answer your business calls,
+            book appointments to your calendar, and capture customer details automatically.
+            To get started with Jalendr for your business, visit jalendr.com.
+            Thanks for calling!
+          </Say>
+        </Response>
+      `;
+    }
+
+    const call = await twilioClient.calls.create(callOptions);
+
+    console.log("Demo call initiated:", call.sid);
+
+    res.json({
+      success: true,
+      callSid: call.sid,
+      message: "Demo call initiated",
+    });
+  } catch (err) {
+    console.error("Demo call error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to initiate demo call",
       error: err?.message || String(err),
     });
   }

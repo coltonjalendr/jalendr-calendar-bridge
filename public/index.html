@@ -172,6 +172,230 @@
       font-weight: 600;
     }
 
+    /* Demo Section */
+    .demo-section {
+      padding: 80px 0;
+      background: var(--white);
+      text-align: center;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .demo-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, var(--primary) 0%, #16213e 100%);
+      border-radius: 24px;
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 50%);
+      animation: pulse-bg 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bg {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .demo-card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .demo-card h2 {
+      color: var(--white);
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .demo-card > p {
+      color: var(--gray-200);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+
+    .demo-phone-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .demo-phone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 20px 32px;
+      transition: all 0.3s;
+    }
+
+    .demo-phone:hover {
+      background: rgba(255,255,255,0.15);
+      transform: scale(1.02);
+    }
+
+    .phone-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      animation: ring 2s ease-in-out infinite;
+    }
+
+    @keyframes ring {
+      0%, 100% { transform: rotate(0deg); }
+      10%, 30% { transform: rotate(-10deg); }
+      20%, 40% { transform: rotate(10deg); }
+      50%, 100% { transform: rotate(0deg); }
+    }
+
+    .phone-number {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .demo-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--gray-200);
+      font-size: 14px;
+    }
+
+    .demo-divider::before,
+    .demo-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .demo-callback {
+      display: flex;
+      gap: 12px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .demo-callback input {
+      flex: 1;
+      padding: 16px 20px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .demo-callback input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    .demo-callback input:focus {
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .demo-callback button {
+      padding: 16px 24px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .demo-callback button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .demo-callback button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .demo-note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--secondary);
+    }
+
+    .demo-success {
+      background: var(--success);
+      color: var(--white);
+      padding: 16px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .demo-success.show {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .demo-card {
+        padding: 32px 24px;
+        margin: 0 16px;
+      }
+
+      .phone-number {
+        font-size: 24px;
+      }
+
+      .demo-phone {
+        flex-direction: column;
+        gap: 12px;
+        padding: 20px;
+      }
+
+      .demo-callback {
+        flex-direction: column;
+      }
+    }
+
     /* Problem Section */
     .problem {
       padding: 100px 0;
@@ -572,7 +796,7 @@
         <a href="#industries">Industries</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#faq">FAQ</a>
-        <a href="#" class="btn btn-primary">Get a Demo</a>
+        <a href="#demo" class="btn btn-primary">Try Demo</a>
       </div>
     </nav>
   </header>
@@ -583,10 +807,41 @@
       <h1>Never Miss Another<br><span>Service Call</span></h1>
       <p>AI phone receptionist that books jobs to your calendar 24/7. Built for roofers, HVAC techs, plumbers, and contractors.</p>
       <div class="hero-cta">
-        <a href="#" class="btn btn-primary btn-large">Get a Demo Call</a>
+        <a href="#demo" class="btn btn-primary btn-large">Try a Demo Call</a>
         <a href="#how-it-works" class="btn btn-secondary btn-large">See How It Works</a>
       </div>
       <p class="trust-badge">Trusted by <span>home service businesses</span> across the country</p>
+    </div>
+  </section>
+
+  <!-- Demo Section -->
+  <section class="demo-section" id="demo">
+    <div class="container">
+      <div class="demo-card">
+        <span class="demo-badge">Try It Live</span>
+        <h2>Hear Jalendr in action</h2>
+        <p>Call our demo line and experience exactly what your customers will hear.</p>
+
+        <div class="demo-phone-container">
+          <a href="tel:+1XXXXXXXXXX" class="demo-phone">
+            <div class="phone-icon">📞</div>
+            <span class="phone-number">(XXX) XXX-XXXX</span>
+          </a>
+
+          <div class="demo-divider">or we'll call you</div>
+
+          <form class="demo-callback" id="callbackForm">
+            <input type="tel" id="callbackPhone" placeholder="Enter your phone number" required>
+            <button type="submit">Call Me</button>
+          </form>
+
+          <div class="demo-success" id="callbackSuccess">
+            Calling you now! Pick up to hear Jalendr.
+          </div>
+        </div>
+
+        <p class="demo-note">Free demo • No credit card • Takes 30 seconds</p>
+      </div>
     </div>
   </section>
 
@@ -730,7 +985,7 @@
     <div class="container">
       <h2>Ready to stop missing calls?</h2>
       <p>See how Jalendr works with a free demo call. No credit card required.</p>
-      <a href="#" class="btn btn-primary btn-large">Get a Demo Call</a>
+      <a href="#demo" class="btn btn-primary btn-large">Try a Demo Call</a>
     </div>
   </section>
 
@@ -782,13 +1037,68 @@
     </div>
   </footer>
 
-  <!-- FAQ Toggle Script -->
+  <!-- Scripts -->
   <script>
+    // FAQ Toggle
     document.querySelectorAll('.faq-question').forEach(question => {
       question.addEventListener('click', () => {
         const item = question.parentElement;
         item.classList.toggle('open');
       });
+    });
+
+    // Callback Form
+    const callbackForm = document.getElementById('callbackForm');
+    const callbackPhone = document.getElementById('callbackPhone');
+    const callbackSuccess = document.getElementById('callbackSuccess');
+
+    callbackForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const phone = callbackPhone.value.replace(/\D/g, '');
+      if (phone.length < 10) {
+        alert('Please enter a valid phone number');
+        return;
+      }
+
+      const btn = callbackForm.querySelector('button');
+      const originalText = btn.textContent;
+      btn.textContent = 'Calling...';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/api/demo-call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: phone })
+        });
+
+        if (response.ok) {
+          callbackForm.style.display = 'none';
+          callbackSuccess.classList.add('show');
+        } else {
+          throw new Error('Failed to initiate call');
+        }
+      } catch (error) {
+        alert('Something went wrong. Please try calling the demo line directly.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    // Format phone input
+    callbackPhone.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\D/g, '');
+      if (value.length > 0) {
+        if (value.length <= 3) {
+          value = `(${value}`;
+        } else if (value.length <= 6) {
+          value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        } else {
+          value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+        }
+      }
+      e.target.value = value;
     });
   </script>
 </body>
