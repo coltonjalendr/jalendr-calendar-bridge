@@ -16,16 +16,16 @@
     }
 
     :root {
-      --primary: #1a1a2e;
-      --accent: #ffffff;
-      --accent-hover: #e2e8f0;
-      --secondary: #64748b;
-      --background: #fafafa;
+      --primary: #0a0a0a;
+      --accent: #ff6b35;
+      --accent-hover: #e55a2b;
+      --secondary: #6b7280;
+      --background: #ffffff;
       --success: #10b981;
       --white: #ffffff;
-      --gray-100: #f1f5f9;
-      --gray-200: #e2e8f0;
-      --gray-800: #1e293b;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e5e5;
+      --gray-800: #171717;
     }
 
     body {
@@ -102,12 +102,12 @@
     }
 
     .btn-primary {
-      background: var(--primary);
+      background: var(--accent);
       color: var(--white);
     }
 
     .btn-primary:hover {
-      background: #2a2a4e;
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
 
@@ -120,6 +120,17 @@
     .btn-white:hover {
       background: var(--gray-100);
       color: var(--primary) !important;
+      transform: translateY(-1px);
+    }
+
+    /* Orange button for dark backgrounds */
+    .btn-accent {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
 
@@ -226,8 +237,8 @@
 
     .demo-badge {
       display: inline-block;
-      background: var(--white);
-      color: var(--primary);
+      background: var(--accent);
+      color: var(--white);
       font-size: 12px;
       font-weight: 700;
       padding: 6px 16px;
@@ -277,7 +288,7 @@
     .phone-icon {
       width: 48px;
       height: 48px;
-      background: var(--white);
+      background: var(--accent);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -348,8 +359,8 @@
 
     .demo-callback button {
       padding: 16px 24px;
-      background: var(--white);
-      color: var(--primary);
+      background: var(--accent);
+      color: var(--white);
       border: none;
       border-radius: 10px;
       font-size: 16px;
@@ -360,7 +371,7 @@
     }
 
     .demo-callback button:hover {
-      background: var(--gray-100);
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
 
@@ -467,7 +478,7 @@
       top: -12px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--success);
+      background: var(--accent);
       color: var(--white);
       font-size: 10px;
       font-weight: 700;
@@ -490,7 +501,7 @@
     }
 
     .comparison-table td.highlight {
-      background: rgba(16, 185, 129, 0.05);
+      background: rgba(255, 107, 53, 0.08);
     }
 
     .comparison-table tbody tr:last-child td {
@@ -510,7 +521,7 @@
     }
 
     .comparison-table tbody tr:hover td.highlight {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(255, 107, 53, 0.12);
     }
 
     .check {
@@ -669,7 +680,7 @@
     .feature-icon {
       width: 48px;
       height: 48px;
-      background: rgba(255,255,255,0.15);
+      background: var(--accent);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -711,7 +722,7 @@
     .step-number {
       width: 64px;
       height: 64px;
-      background: var(--primary);
+      background: var(--accent);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -768,7 +779,7 @@
     }
 
     .industry-card:hover {
-      border-color: var(--primary);
+      border-color: var(--accent);
       transform: translateY(-2px);
     }
 
@@ -835,7 +846,7 @@
     .faq-question::after {
       content: '+';
       font-size: 24px;
-      color: var(--primary);
+      color: var(--accent);
       transition: transform 0.2s;
     }
 
@@ -1089,7 +1100,7 @@
         <a href="#industries">Industries</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#faq">FAQ</a>
-        <a href="#demo" class="btn btn-white">Try Demo</a>
+        <a href="#demo" class="btn btn-accent">Try Demo</a>
       </div>
       <div class="hamburger" id="hamburger">
         <span></span>
@@ -1105,7 +1116,7 @@
       <h1>Never Miss Another<br><span>Service Call</span></h1>
       <p>AI phone receptionist that books jobs to your calendar 24/7. Built for roofers, HVAC techs, plumbers, and contractors.</p>
       <div class="hero-cta">
-        <a href="#demo" class="btn btn-white btn-large">Try a Demo Call</a>
+        <a href="#demo" class="btn btn-accent btn-large">Try a Demo Call</a>
         <a href="#how-it-works" class="btn btn-secondary btn-large">See How It Works</a>
       </div>
       <p class="trust-badge">Trusted by <span>home service businesses</span> across the country</p>
@@ -1362,7 +1373,7 @@
     <div class="container">
       <h2 class="reveal">Ready to stop missing calls?</h2>
       <p class="reveal">See how Jalendr works with a free demo call. No credit card required.</p>
-      <a href="#demo" class="btn btn-white btn-large reveal">Try a Demo Call</a>
+      <a href="#demo" class="btn btn-accent btn-large reveal">Try a Demo Call</a>
     </div>
   </section>
 
