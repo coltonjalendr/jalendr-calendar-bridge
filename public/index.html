@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     * {
       margin: 0;
@@ -293,8 +294,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      color: var(--white);
       animation: ring 2s ease-in-out infinite;
+    }
+
+    .phone-icon svg {
+      width: 24px;
+      height: 24px;
     }
 
     @keyframes ring {
@@ -617,7 +623,12 @@
       align-items: center;
       justify-content: center;
       margin: 0 auto 20px;
-      font-size: 28px;
+      color: #dc2626;
+    }
+
+    .problem-icon svg {
+      width: 28px;
+      height: 28px;
     }
 
     .problem-card h3 {
@@ -685,8 +696,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
       margin-bottom: 20px;
+      color: var(--white);
+    }
+
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
     }
 
     .feature-card h3 {
@@ -784,8 +800,13 @@
     }
 
     .industry-icon {
-      font-size: 40px;
       margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .industry-icon svg {
+      width: 40px;
+      height: 40px;
     }
 
     .industry-card h3 {
@@ -1133,7 +1154,7 @@
 
         <div class="demo-phone-container">
           <a href="tel:+12402123732" class="demo-phone">
-            <div class="phone-icon">📞</div>
+            <div class="phone-icon"><i data-lucide="phone"></i></div>
             <span class="phone-number">(240) 212-3732</span>
           </a>
 
@@ -1163,19 +1184,19 @@
 
       <div class="problem-grid stagger-children">
         <div class="problem-card">
-          <div class="problem-icon">📞</div>
+          <div class="problem-icon"><i data-lucide="phone-missed"></i></div>
           <h3>Miss a call during a job</h3>
           <p>You can't answer when you're 20 feet up on a ladder or elbow-deep in pipes</p>
           <p class="problem-stat">$500-$5,000 lost</p>
         </div>
         <div class="problem-card">
-          <div class="problem-icon">📱</div>
+          <div class="problem-icon"><i data-lucide="voicemail"></i></div>
           <h3>Voicemail doesn't work</h3>
           <p>80% of callers won't leave a message. They just call your competitor instead.</p>
           <p class="problem-stat">80% hang up</p>
         </div>
         <div class="problem-card">
-          <div class="problem-icon">💸</div>
+          <div class="problem-icon"><i data-lucide="dollar-sign"></i></div>
           <h3>Hiring is expensive</h3>
           <p>A full-time receptionist costs $4,000+/month. And they still miss calls after hours.</p>
           <p class="problem-stat">$48,000/year</p>
@@ -1272,32 +1293,32 @@
 
       <div class="features-grid stagger-children">
         <div class="feature-card">
-          <div class="feature-icon">📞</div>
+          <div class="feature-icon"><i data-lucide="phone-incoming"></i></div>
           <h3>Answers Every Call</h3>
           <p>Professional greeting with your business name. 24/7, including nights, weekends, and holidays.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📅</div>
+          <div class="feature-icon"><i data-lucide="calendar-check"></i></div>
           <h3>Books to Your Calendar</h3>
           <p>Syncs with Google Calendar. Checks your availability and schedules jobs in real-time.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔧</div>
+          <div class="feature-icon"><i data-lucide="clipboard-list"></i></div>
           <h3>Captures Job Details</h3>
           <p>Gets the full picture: what's the problem, address, contact info, and any special notes.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔄</div>
+          <div class="feature-icon"><i data-lucide="refresh-cw"></i></div>
           <h3>Handles Changes</h3>
           <p>Customers can call back to cancel or reschedule. No more phone tag.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔔</div>
+          <div class="feature-icon"><i data-lucide="bell"></i></div>
           <h3>Instant Notifications</h3>
           <p>Get a text or email the moment a job is booked. Never miss an update.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📋</div>
+          <div class="feature-icon"><i data-lucide="user-plus"></i></div>
           <h3>Lead Capture</h3>
           <p>Even if they don't book, we capture their info so you can follow up later.</p>
         </div>
@@ -1341,27 +1362,27 @@
 
       <div class="industries-grid stagger-children">
         <div class="industry-card">
-          <div class="industry-icon">🏠</div>
+          <div class="industry-icon"><i data-lucide="home"></i></div>
           <h3>Roofing</h3>
         </div>
         <div class="industry-card">
-          <div class="industry-icon">❄️</div>
+          <div class="industry-icon"><i data-lucide="thermometer-snowflake"></i></div>
           <h3>HVAC</h3>
         </div>
         <div class="industry-card">
-          <div class="industry-icon">🔧</div>
+          <div class="industry-icon"><i data-lucide="wrench"></i></div>
           <h3>Plumbing</h3>
         </div>
         <div class="industry-card">
-          <div class="industry-icon">⚡</div>
+          <div class="industry-icon"><i data-lucide="zap"></i></div>
           <h3>Electrical</h3>
         </div>
         <div class="industry-card">
-          <div class="industry-icon">🌳</div>
+          <div class="industry-icon"><i data-lucide="trees"></i></div>
           <h3>Landscaping</h3>
         </div>
         <div class="industry-card">
-          <div class="industry-icon">🔨</div>
+          <div class="industry-icon"><i data-lucide="hammer"></i></div>
           <h3>General Contractors</h3>
         </div>
       </div>
@@ -1532,6 +1553,9 @@
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children').forEach(el => {
       revealOnScroll.observe(el);
     });
+
+    // Initialize Lucide icons
+    lucide.createIcons();
   </script>
 </body>
 </html>
