@@ -838,6 +838,133 @@
       margin-right: auto;
     }
 
+    /* Pricing */
+    .pricing {
+      padding: 100px 0;
+      background: var(--gray-100);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 48px auto 0;
+    }
+
+    .pricing-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      border: 2px solid var(--gray-200);
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .pricing-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .pricing-card.popular {
+      border-color: var(--accent);
+    }
+
+    .pricing-card.popular::before {
+      content: 'Most Popular';
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .pricing-tier {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price span {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+
+    .pricing-setup {
+      font-size: 14px;
+      color: var(--secondary);
+      margin-bottom: 24px;
+    }
+
+    .pricing-description {
+      font-size: 15px;
+      color: var(--secondary);
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .pricing-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--gray-800);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .pricing-features li.disabled {
+      color: var(--secondary);
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .pricing-features li.disabled::before {
+      content: '—';
+      color: var(--secondary);
+    }
+
+    .pricing-cta {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .pricing-grid {
+        max-width: 400px;
+      }
+    }
+
     /* FAQ */
     .faq {
       padding: 100px 0;
@@ -1118,7 +1245,7 @@
       <a href="/" class="logo">Jalen<span>dr</span></a>
       <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
-        <a href="#industries">Industries</a>
+        <a href="#pricing">Pricing</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#faq">FAQ</a>
         <a href="#demo" class="btn btn-accent">Try Demo</a>
@@ -1395,6 +1522,65 @@
       <h2 class="reveal">Every hour you wait is another lost job.</h2>
       <p class="reveal">Hear Jalendr in action. No credit card required.</p>
       <a href="#demo" class="btn btn-accent btn-large reveal">Try a Demo Call</a>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <p class="section-label reveal">Pricing</p>
+      <h2 class="section-title reveal">Simple, transparent pricing</h2>
+      <p class="section-subtitle reveal">No hidden fees. No contracts. Cancel anytime.</p>
+
+      <div class="pricing-grid stagger-children">
+        <div class="pricing-card">
+          <p class="pricing-tier">Starter</p>
+          <p class="pricing-price">$399<span>/mo</span></p>
+          <p class="pricing-setup">+ $199 one-time setup</p>
+          <p class="pricing-description">Perfect for solo operators</p>
+          <ul class="pricing-features">
+            <li>1 phone line</li>
+            <li>Calendar sync</li>
+            <li>Lead capture</li>
+            <li>Cancel & reschedule</li>
+            <li class="disabled">SMS confirmations</li>
+            <li class="disabled">Priority support</li>
+          </ul>
+          <a href="#demo" class="btn btn-primary pricing-cta">Get Started</a>
+        </div>
+
+        <div class="pricing-card popular">
+          <p class="pricing-tier">Professional</p>
+          <p class="pricing-price">$699<span>/mo</span></p>
+          <p class="pricing-setup">+ $199 one-time setup</p>
+          <p class="pricing-description">Best for growing businesses</p>
+          <ul class="pricing-features">
+            <li>2 phone lines</li>
+            <li>Calendar sync</li>
+            <li>Lead capture</li>
+            <li>Cancel & reschedule</li>
+            <li>SMS confirmations</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#demo" class="btn btn-primary pricing-cta">Get Started</a>
+        </div>
+
+        <div class="pricing-card">
+          <p class="pricing-tier">Business</p>
+          <p class="pricing-price">Custom</p>
+          <p class="pricing-setup">Let's talk</p>
+          <p class="pricing-description">For teams & multi-location</p>
+          <ul class="pricing-features">
+            <li>Unlimited phone lines</li>
+            <li>Multiple calendars</li>
+            <li>Lead capture</li>
+            <li>Cancel & reschedule</li>
+            <li>SMS confirmations</li>
+            <li>Dedicated support</li>
+          </ul>
+          <a href="#demo" class="btn btn-primary pricing-cta">Contact Us</a>
+        </div>
+      </div>
     </div>
   </section>
 
