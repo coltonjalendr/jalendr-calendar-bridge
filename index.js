@@ -4,6 +4,7 @@ const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
 
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json());
@@ -11,11 +12,29 @@ app.use(express.json());
 // Serve static files
 const publicPath = path.join(__dirname, "public");
 console.log("Serving static files from:", publicPath);
+
+// Check if public folder exists
+try {
+  const files = fs.readdirSync(publicPath);
+  console.log("Files in public folder:", files);
+} catch (err) {
+  console.error("Error reading public folder:", err.message);
+}
+
 app.use(express.static(publicPath));
 
-// Explicit route for homepage
+// Explicit route for homepage with error handling
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+  const filePath = path.join(publicPath, "index.html");
+  console.log("Serving index.html from:", filePath);
+
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading index.html:", err.message);
+      return res.status(500).send("Error: " + err.message);
+    }
+    res.type("html").send(data);
+  });
 });
 
 const PORT = process.env.PORT || 3000;
