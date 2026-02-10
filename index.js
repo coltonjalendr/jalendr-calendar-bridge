@@ -116,10 +116,6 @@ function getOAuthClient() {
 }
 
 // -------- Health check --------
-app.get("/", (req, res) => {
-  res.status(200).send("Jalendr calendar bridge is running ✅");
-});
-
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
