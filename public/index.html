@@ -77,15 +77,14 @@
     }
 
     .logo {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--white);
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      letter-spacing: -0.5px;
     }
 
-    .logo span {
-      color: var(--gray-200);
+    .logo img {
+      height: 36px;
+      width: auto;
     }
 
     .nav-links {
@@ -1048,14 +1047,9 @@
       gap: 24px;
     }
 
-    .footer-logo {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--white);
-    }
-
-    .footer-logo span {
-      color: var(--gray-200);
+    .footer-logo img {
+      height: 32px;
+      width: auto;
     }
 
     .footer-links {
@@ -1260,7 +1254,7 @@
   <div class="mobile-overlay" id="mobileOverlay"></div>
   <header>
     <nav class="container">
-      <a href="/" class="logo">Jalen<span>dr</span></a>
+      <a href="/" class="logo"><img src="/logo.png" alt="Jalendr"></a>
       <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
@@ -1644,7 +1638,7 @@
   <!-- Footer -->
   <footer>
     <div class="container footer-content">
-      <div class="footer-logo">Jalen<span>dr</span></div>
+      <div class="footer-logo"><img src="/logo.png" alt="Jalendr"></div>
       <div class="footer-links">
         <a href="/privacy.html">Privacy Policy</a>
         <a href="/terms.html">Terms of Service</a>
