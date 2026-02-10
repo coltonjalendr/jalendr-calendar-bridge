@@ -7,7 +7,16 @@ const path = require("path");
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+
+// Serve static files
+const publicPath = path.join(__dirname, "public");
+console.log("Serving static files from:", publicPath);
+app.use(express.static(publicPath));
+
+// Explicit route for homepage
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicPath, "index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 
