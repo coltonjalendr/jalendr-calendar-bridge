@@ -25,7 +25,7 @@
   <meta name="twitter:image" content="https://www.jalendr.com/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     * {
@@ -77,14 +77,12 @@
     }
 
     .logo {
-      display: flex;
-      align-items: center;
+      font-family: 'Nunito', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--white);
       text-decoration: none;
-    }
-
-    .logo img {
-      height: 36px;
-      width: auto;
+      letter-spacing: -0.5px;
     }
 
     .nav-links {
@@ -1047,9 +1045,11 @@
       gap: 24px;
     }
 
-    .footer-logo img {
-      height: 32px;
-      width: auto;
+    .footer-logo {
+      font-family: 'Nunito', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--white);
     }
 
     .footer-links {
@@ -1254,7 +1254,7 @@
   <div class="mobile-overlay" id="mobileOverlay"></div>
   <header>
     <nav class="container">
-      <a href="/" class="logo"><img src="/logo.png" alt="Jalendr"></a>
+      <a href="/" class="logo">jalendr</a>
       <div class="nav-links" id="navLinks">
         <a href="#features">Features</a>
         <a href="#pricing">Pricing</a>
@@ -1638,7 +1638,7 @@
   <!-- Footer -->
   <footer>
     <div class="container footer-content">
-      <div class="footer-logo"><img src="/logo.png" alt="Jalendr"></div>
+      <div class="footer-logo">jalendr</div>
       <div class="footer-links">
         <a href="/privacy.html">Privacy Policy</a>
         <a href="/terms.html">Terms of Service</a>
