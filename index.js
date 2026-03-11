@@ -1190,7 +1190,7 @@ app.post("/auth/magic-link", magicLinkLimiter, async (req, res) => {
       const magicLink = `${BASE_URL}/auth/verify?token=${token}`;
 
       await resend.emails.send({
-        from: "Jalendr <onboarding@resend.dev>",
+        from: "Jalendr <noreply@jalendr.com>",
         to: client.email,
         subject: "Your Jalendr Login Link",
         html: `
