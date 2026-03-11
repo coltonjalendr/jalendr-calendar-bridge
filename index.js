@@ -2,6 +2,9 @@ const express = require("express");
 const { google } = require("googleapis");
 const twilio = require("twilio");
 const { createClient } = require("@supabase/supabase-js");
+const { Resend } = require("resend");
+const rateLimit = require("express-rate-limit");
+const crypto = require("crypto");
 
 const path = require("path");
 
@@ -29,6 +32,13 @@ const supabase = createClient(SUPABASE_URL || "", SUPABASE_KEY || "");
 // Admin API Key
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
+// Resend for magic link emails
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
+// Base URL for magic links
+const BASE_URL = process.env.BASE_URL || "https://industrious-clarity-production.up.railway.app";
+
 // Demo config
 const DEMO_PHONE_NUMBER = process.env.DEMO_PHONE_NUMBER; // The Twilio number for demo calls
 const DEMO_WEBHOOK_URL = process.env.DEMO_WEBHOOK_URL; // LiveKit agent webhook for demo
@@ -50,6 +60,60 @@ function requireAdminAuth(req, res, next) {
   }
 
   next();
+}
+
+// -------- Rate Limiter for Magic Link --------
+const magicLinkLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per window
+  message: { status: "error", message: "Too many login attempts. Please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// -------- Client Auth Middleware --------
+async function requireClientAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      status: "error",
+      message: "Unauthorized - missing session token"
+    });
+  }
+
+  const sessionToken = authHeader.slice(7);
+
+  try {
+    const { data: session, error } = await supabase
+      .from("client_sessions")
+      .select("*, clients(*)")
+      .eq("session_token", sessionToken)
+      .gt("expires_at", new Date().toISOString())
+      .single();
+
+    if (error || !session) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid or expired session"
+      });
+    }
+
+    req.clientSession = session;
+    req.client = session.clients;
+    next();
+  } catch (err) {
+    console.error("Auth error:", err);
+    return res.status(500).json({
+      status: "error",
+      message: "Authentication failed"
+    });
+  }
+}
+
+// -------- Helper: Generate Secure Token --------
+function generateToken() {
+  return crypto.randomBytes(32).toString("hex");
 }
 
 // Calendar scopes: events + read access for availability
@@ -798,6 +862,435 @@ app.post("/api/demo-call", async (req, res) => {
       status: "error",
       message: "Failed to initiate demo call",
       error: err?.message || String(err),
+    });
+  }
+});
+
+// -------- Customer: Dashboard Stats --------
+app.get("/customer/stats", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+
+    // Get leads count for this client
+    const { count: totalLeads } = await supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("client_id", client.id);
+
+    const { count: newLeads } = await supabase
+      .from("leads")
+      .select("*", { count: "exact", head: true })
+      .eq("client_id", client.id)
+      .eq("status", "new");
+
+    // Get appointment counts from Google Calendar if connected
+    let todayAppointments = 0;
+    let weekAppointments = 0;
+
+    if (client.google_refresh_token) {
+      try {
+        const oauth2Client = getOAuthClient();
+        oauth2Client.setCredentials({
+          refresh_token: client.google_refresh_token,
+        });
+
+        const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+        const now = new Date();
+        const todayStart = new Date(now);
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date(now);
+        todayEnd.setHours(23, 59, 59, 999);
+
+        const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        // Today's appointments
+        const todayResponse = await calendar.events.list({
+          calendarId: "primary",
+          timeMin: todayStart.toISOString(),
+          timeMax: todayEnd.toISOString(),
+          singleEvents: true,
+        });
+        todayAppointments = (todayResponse.data.items || []).length;
+
+        // Week's appointments
+        const weekResponse = await calendar.events.list({
+          calendarId: "primary",
+          timeMin: now.toISOString(),
+          timeMax: weekEnd.toISOString(),
+          singleEvents: true,
+        });
+        weekAppointments = (weekResponse.data.items || []).length;
+      } catch (calErr) {
+        console.error("Calendar stats error:", calErr.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      stats: {
+        todayAppointments,
+        weekAppointments,
+        newLeads: newLeads || 0,
+        totalLeads: totalLeads || 0,
+      }
+    });
+  } catch (err) {
+    console.error("Stats error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get stats"
+    });
+  }
+});
+
+// -------- Customer: Today's Appointments --------
+app.get("/customer/appointments/today", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+
+    if (!client.google_refresh_token) {
+      return res.json({
+        success: true,
+        appointments: [],
+        message: "Google Calendar not connected"
+      });
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: client.google_refresh_token,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: todayStart.toISOString(),
+      timeMax: todayEnd.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+
+    const appointments = (response.data.items || []).map((event) => ({
+      id: event.id,
+      summary: event.summary || "No title",
+      start: event.start.dateTime || event.start.date,
+      end: event.end.dateTime || event.end.date,
+      startFormatted: new Date(event.start.dateTime || event.start.date).toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: client.timezone || "America/Chicago",
+      }),
+      description: event.description,
+    }));
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (err) {
+    console.error("Today appointments error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get today's appointments"
+    });
+  }
+});
+
+// -------- Customer: Upcoming Appointments --------
+app.get("/customer/appointments/upcoming", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+
+    if (!client.google_refresh_token) {
+      return res.json({
+        success: true,
+        appointments: [],
+        message: "Google Calendar not connected"
+      });
+    }
+
+    const oauth2Client = getOAuthClient();
+    oauth2Client.setCredentials({
+      refresh_token: client.google_refresh_token,
+    });
+
+    const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+    const now = new Date();
+    const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    const response = await calendar.events.list({
+      calendarId: "primary",
+      timeMin: now.toISOString(),
+      timeMax: weekEnd.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+
+    const appointments = (response.data.items || []).map((event) => ({
+      id: event.id,
+      summary: event.summary || "No title",
+      start: event.start.dateTime || event.start.date,
+      end: event.end.dateTime || event.end.date,
+      startFormatted: new Date(event.start.dateTime || event.start.date).toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: client.timezone || "America/Chicago",
+      }),
+      description: event.description,
+    }));
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (err) {
+    console.error("Upcoming appointments error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get upcoming appointments"
+    });
+  }
+});
+
+// -------- Customer: Get Leads --------
+app.get("/customer/leads", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+
+    const { data: leads, error } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("client_id", client.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      leads: leads || [],
+    });
+  } catch (err) {
+    console.error("Get leads error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get leads"
+    });
+  }
+});
+
+// -------- Customer: Update Lead Status --------
+app.patch("/customer/leads/:id", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+    const leadId = req.params.id;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        status: "error",
+        message: "Status is required"
+      });
+    }
+
+    // Verify lead belongs to this client
+    const { data: lead, error: findError } = await supabase
+      .from("leads")
+      .select("id")
+      .eq("id", leadId)
+      .eq("client_id", client.id)
+      .single();
+
+    if (findError || !lead) {
+      return res.status(404).json({
+        status: "error",
+        message: "Lead not found"
+      });
+    }
+
+    // Update lead status
+    const { data: updated, error } = await supabase
+      .from("leads")
+      .update({ status })
+      .eq("id", leadId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      lead: updated,
+    });
+  } catch (err) {
+    console.error("Update lead error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to update lead"
+    });
+  }
+});
+
+// -------- Magic Link: Send Login Email --------
+app.post("/auth/magic-link", magicLinkLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        status: "error",
+        message: "Email is required"
+      });
+    }
+
+    // Find client by email
+    const { data: client, error } = await supabase
+      .from("clients")
+      .select("id, company_name, email")
+      .eq("email", email.toLowerCase().trim())
+      .single();
+
+    if (error || !client) {
+      // Don't reveal if email exists - always show success for security
+      return res.json({
+        success: true,
+        message: "If an account exists with this email, you will receive a login link shortly."
+      });
+    }
+
+    // Generate magic link token
+    const token = generateToken();
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    // Store token
+    const { error: insertError } = await supabase
+      .from("magic_link_tokens")
+      .insert({
+        client_id: client.id,
+        token,
+        expires_at: expiresAt.toISOString()
+      });
+
+    if (insertError) throw insertError;
+
+    // Send email via Resend
+    if (resend) {
+      const magicLink = `${BASE_URL}/auth/verify?token=${token}`;
+
+      await resend.emails.send({
+        from: "Jalendr <noreply@jalendr.com>",
+        to: client.email,
+        subject: "Your Jalendr Login Link",
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #111; font-size: 24px; margin-bottom: 20px;">Login to Jalendr</h1>
+            <p style="color: #666; font-size: 16px; margin-bottom: 30px;">
+              Click the button below to log in to your ${client.company_name} dashboard.
+            </p>
+            <a href="${magicLink}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-weight: 500; font-size: 16px;">
+              Log In to Dashboard
+            </a>
+            <p style="color: #999; font-size: 13px; margin-top: 30px;">
+              This link expires in 15 minutes. If you didn't request this, you can safely ignore this email.
+            </p>
+          </div>
+        `
+      });
+    } else {
+      console.log("Resend not configured. Magic link token:", token);
+    }
+
+    res.json({
+      success: true,
+      message: "If an account exists with this email, you will receive a login link shortly."
+    });
+  } catch (err) {
+    console.error("Magic link error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to send login link"
+    });
+  }
+});
+
+// -------- Magic Link: Verify Token --------
+app.get("/auth/verify", async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.redirect("/login.html?error=invalid");
+    }
+
+    // Find and validate token
+    const { data: magicToken, error } = await supabase
+      .from("magic_link_tokens")
+      .select("*, clients(*)")
+      .eq("token", token)
+      .is("used_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .single();
+
+    if (error || !magicToken) {
+      return res.redirect("/login.html?error=expired");
+    }
+
+    // Mark token as used
+    await supabase
+      .from("magic_link_tokens")
+      .update({ used_at: new Date().toISOString() })
+      .eq("id", magicToken.id);
+
+    // Create session
+    const sessionToken = generateToken();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    const { error: sessionError } = await supabase
+      .from("client_sessions")
+      .insert({
+        client_id: magicToken.client_id,
+        session_token: sessionToken,
+        expires_at: expiresAt.toISOString()
+      });
+
+    if (sessionError) throw sessionError;
+
+    // Redirect to dashboard with session
+    res.redirect(`/customer-dashboard.html?session=${sessionToken}`);
+  } catch (err) {
+    console.error("Verify error:", err);
+    res.redirect("/login.html?error=failed");
+  }
+});
+
+// -------- Logout --------
+app.post("/auth/logout", requireClientAuth, async (req, res) => {
+  try {
+    const sessionToken = req.headers.authorization.slice(7);
+
+    await supabase
+      .from("client_sessions")
+      .delete()
+      .eq("session_token", sessionToken);
+
+    res.json({ success: true, message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to logout"
     });
   }
 });
