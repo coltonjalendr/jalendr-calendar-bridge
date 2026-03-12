@@ -795,6 +795,57 @@ app.post("/admin/clients", requireAdminAuth, async (req, res) => {
   }
 });
 
+// -------- Update Client (Admin) --------
+app.patch("/admin/clients/:id", requireAdminAuth, async (req, res) => {
+  try {
+    const clientId = req.params.id;
+    const {
+      company_name,
+      owner_name,
+      email,
+      phone_number,
+      timezone,
+      hours_start,
+      hours_end,
+      appointment_duration_minutes,
+      job_types,
+      greeting_name,
+    } = req.body;
+
+    const { data, error } = await supabase
+      .from("clients")
+      .update({
+        company_name,
+        owner_name,
+        email,
+        phone_number,
+        timezone,
+        hours_start,
+        hours_end,
+        appointment_duration_minutes,
+        job_types,
+        greeting_name,
+      })
+      .eq("id", clientId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      client: data,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to update client",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- Demo Call (Website Callback) --------
 app.post("/api/demo-call", async (req, res) => {
   try {

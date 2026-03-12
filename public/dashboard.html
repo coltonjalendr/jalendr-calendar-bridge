@@ -285,8 +285,9 @@
   <!-- Add Client Modal -->
   <div class="modal-overlay" id="modal">
     <div class="modal">
-      <h2>Add New Client</h2>
+      <h2 id="modal-title">Add New Client</h2>
       <form id="client-form">
+        <input type="hidden" name="client_id" id="edit-client-id">
         <div class="form-row">
           <div class="form-group">
             <label>Company Name *</label>
@@ -343,7 +344,7 @@
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Client</button>
+          <button type="submit" class="btn btn-primary" id="modal-submit-btn">Create Client</button>
         </div>
       </form>
     </div>
@@ -352,6 +353,8 @@
   <script>
     const API_BASE = '';
     let apiKey = localStorage.getItem('jalendr_api_key') || '';
+    let allClients = [];
+    let editingClientId = null;
 
     // Check if already logged in
     if (apiKey) {
@@ -442,17 +445,47 @@
 
     // Modal
     function openModal() {
+      editingClientId = null;
+      document.getElementById('modal-title').textContent = 'Add New Client';
+      document.getElementById('modal-submit-btn').textContent = 'Create Client';
+      document.getElementById('edit-client-id').value = '';
       document.getElementById('modal').classList.add('active');
     }
+
     function closeModal() {
       document.getElementById('modal').classList.remove('active');
       document.getElementById('client-form').reset();
+      editingClientId = null;
+    }
+
+    function editClient(clientId) {
+      const client = allClients.find(c => c.id === clientId);
+      if (!client) return;
+
+      editingClientId = clientId;
+      document.getElementById('modal-title').textContent = 'Edit Client';
+      document.getElementById('modal-submit-btn').textContent = 'Save Changes';
+      document.getElementById('edit-client-id').value = clientId;
+
+      const form = document.getElementById('client-form');
+      form.company_name.value = client.company_name || '';
+      form.owner_name.value = client.owner_name || '';
+      form.email.value = client.email || '';
+      form.phone_number.value = client.phone_number || '';
+      form.timezone.value = client.timezone || 'America/Chicago';
+      form.appointment_duration_minutes.value = client.appointment_duration_minutes || 60;
+      form.hours_start.value = client.hours_start || '08:00';
+      form.hours_end.value = client.hours_end || '17:00';
+      form.greeting_name.value = client.greeting_name || 'Jalendr';
+
+      document.getElementById('modal').classList.add('active');
     }
 
     // Load clients
     async function loadClients() {
       try {
         const data = await apiFetch('/admin/clients');
+        allClients = data.clients;
 
         document.getElementById('total-clients').textContent = data.clients.length;
 
@@ -477,8 +510,9 @@
                 <span class="badge ${client.google_refresh_token ? 'badge-green' : 'badge-yellow'}">
                   ${client.google_refresh_token ? 'Connected' : 'Not Connected'}
                 </span>
-                <div style="margin-top: 10px;">
-                  <button class="btn btn-secondary btn-small" onclick="copyOAuthLink('${client.id}')">Copy OAuth Link</button>
+                <div style="margin-top: 10px; display: flex; gap: 8px;">
+                  <button class="btn btn-secondary btn-small" onclick="editClient('${client.id}')">Edit</button>
+                  <button class="btn btn-secondary btn-small" onclick="copyOAuthLink('${client.id}')">OAuth Link</button>
                 </div>
               </div>
             </div>
@@ -532,7 +566,7 @@
       }
     }
 
-    // Create client
+    // Create or update client
     document.getElementById('client-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.target;
@@ -549,20 +583,35 @@
       };
 
       try {
-        const result = await apiFetch('/admin/clients', {
-          method: 'POST',
-          body: JSON.stringify(data),
-        });
-
-        if (result.success) {
-          closeModal();
-          loadClients();
-          alert('Client created!\\n\\nOAuth URL:\\n' + result.oauthUrl);
+        let result;
+        if (editingClientId) {
+          // Update existing client
+          result = await apiFetch(`/admin/clients/${editingClientId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(data),
+          });
+          if (result.success) {
+            closeModal();
+            loadClients();
+          } else {
+            alert('Error: ' + result.message);
+          }
         } else {
-          alert('Error: ' + result.message);
+          // Create new client
+          result = await apiFetch('/admin/clients', {
+            method: 'POST',
+            body: JSON.stringify(data),
+          });
+          if (result.success) {
+            closeModal();
+            loadClients();
+            alert('Client created!\\n\\nOAuth URL:\\n' + result.oauthUrl);
+          } else {
+            alert('Error: ' + result.message);
+          }
         }
       } catch (err) {
-        alert('Failed to create client');
+        alert('Failed to save client');
       }
     });
 
