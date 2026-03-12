@@ -425,6 +425,21 @@ Booked via Jalendr
       console.error("SMS failed (booking still succeeded):", smsErr.message);
     }
 
+    // Also save as a lead
+    try {
+      await supabase.from("leads").insert({
+        client_id,
+        name: name || null,
+        phone: phone || null,
+        address: address || null,
+        job_type: jobType || null,
+        notes: "Booked appointment",
+        status: "booked",
+      });
+    } catch (leadErr) {
+      console.error("Lead save failed (booking still succeeded):", leadErr.message);
+    }
+
     res.json({
       success: true,
       eventLink: result.data.htmlLink,

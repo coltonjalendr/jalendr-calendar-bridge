@@ -197,6 +197,11 @@
       color: #22c55e;
     }
 
+    .badge-booked {
+      background: #1e1b4b;
+      color: #a78bfa;
+    }
+
     .badge-gray {
       background: #1a1a1a;
       color: #666;
@@ -543,7 +548,7 @@
             ${lead.notes ? `<p class="notes">"${escapeHtml(lead.notes)}"</p>` : ''}
           </div>
           <div class="lead-actions">
-            <span class="badge ${lead.status === 'new' ? 'badge-new' : 'badge-contacted'}">${lead.status}</span>
+            <span class="badge ${lead.status === 'new' ? 'badge-new' : lead.status === 'booked' ? 'badge-booked' : 'badge-contacted'}">${lead.status}</span>
             ${lead.status === 'new' ? `
               <button class="btn btn-primary" onclick="markContacted('${lead.id}')">Mark Contacted</button>
             ` : ''}
