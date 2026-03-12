@@ -11,44 +11,111 @@
       background: #0a0a0a;
       color: #fff;
       min-height: 100vh;
-      padding: 20px;
     }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .header {
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 240px;
+      height: 100vh;
+      background: #111;
+      border-right: 1px solid #222;
+      padding: 20px 0;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #222;
+      flex-direction: column;
     }
 
-    .header h1 {
-      font-size: 24px;
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid #222;
+      margin-bottom: 20px;
+    }
+
+    .sidebar-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+    }
+
+    .sidebar-logo span {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .nav-items {
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      color: #888;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: rgba(37, 99, 235, 0.2);
+      border-right: 3px solid #2563eb;
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sidebar-footer {
+      padding: 20px;
+      border-top: 1px solid #222;
+    }
+
+    .company-badge {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .company-badge p {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .company-badge h4 {
+      font-size: 14px;
       color: #fff;
     }
 
-    .header-right {
+    .logout-btn {
       display: flex;
       align-items: center;
-      gap: 15px;
-    }
-
-    .company-name {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .logout-btn {
+      gap: 8px;
+      width: 100%;
+      padding: 10px 12px;
       background: none;
       border: 1px solid #333;
-      color: #666;
-      padding: 8px 16px;
+      color: #888;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
@@ -60,160 +127,229 @@
       color: #fff;
     }
 
-    /* Stats Grid */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+    /* Main Content */
+    .main {
+      margin-left: 240px;
+      padding: 30px;
+      min-height: 100vh;
+    }
+
+    .page {
+      display: none;
+      max-width: 1200px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .page-header {
       margin-bottom: 30px;
     }
 
-    @media (max-width: 768px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: #888;
+      font-size: 15px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
     }
 
     .stat-card {
       background: #111;
       border: 1px solid #222;
-      border-radius: 8px;
+      border-radius: 12px;
       padding: 20px;
     }
 
-    .stat-value {
-      font-size: 32px;
-      font-weight: 600;
-      color: #fff;
+    .stat-card.highlight {
+      background: linear-gradient(135deg, #1e3a5f 0%, #1e1b4b 100%);
+      border-color: #2563eb;
     }
 
     .stat-label {
-      color: #666;
       font-size: 13px;
-      margin-top: 5px;
-    }
-
-    /* Section */
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .section h2 {
-      font-size: 18px;
       color: #888;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .stat-change.up {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .stat-change.down {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
     }
 
     /* Cards */
     .card {
       background: #111;
       border: 1px solid #222;
-      border-radius: 8px;
-      padding: 16px 20px;
-      margin-bottom: 10px;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
     }
 
-    .card:last-child {
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* Two Column Layout */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* Appointment Item */
+    .appointment-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .appointment-item:last-child {
       margin-bottom: 0;
     }
 
-    /* Appointment Card */
-    .appointment-card {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+    .appointment-time {
+      text-align: center;
+      min-width: 60px;
     }
 
-    .appointment-time {
+    .appointment-time .time {
       font-size: 16px;
       font-weight: 600;
       color: #2563eb;
-      min-width: 80px;
     }
 
-    .appointment-info h3 {
-      font-size: 15px;
+    .appointment-time .period {
+      font-size: 11px;
+      color: #888;
+    }
+
+    .appointment-details h4 {
+      font-size: 14px;
       margin-bottom: 4px;
-      color: #fff;
     }
 
-    .appointment-info p {
-      color: #666;
+    .appointment-details p {
       font-size: 13px;
+      color: #888;
     }
 
-    /* Lead Card */
-    .lead-card {
+    .appointment-date {
+      font-size: 12px;
+      color: #666;
+      background: #1a1a1a;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+
+    /* Lead Item */
+    .lead-item {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      padding: 16px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    .lead-info h3 {
-      font-size: 15px;
+    .lead-item:hover {
+      background: #151515;
+    }
+
+    .lead-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .lead-info h4 {
+      font-size: 14px;
       margin-bottom: 4px;
-      color: #fff;
     }
 
     .lead-info p {
-      color: #666;
       font-size: 13px;
-      margin-bottom: 2px;
-    }
-
-    .lead-info .notes {
       color: #888;
-      font-style: italic;
-      margin-top: 8px;
     }
 
-    .lead-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
+    .lead-meta {
+      text-align: right;
     }
 
     .badge {
+      display: inline-block;
       padding: 4px 10px;
       border-radius: 20px;
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .badge-new {
-      background: #1e3a5f;
-      color: #60a5fa;
-    }
+    .badge-new { background: #1e3a5f; color: #60a5fa; }
+    .badge-contacted { background: #0f291a; color: #22c55e; }
+    .badge-booked { background: #1e1b4b; color: #a78bfa; }
 
-    .badge-contacted {
-      background: #0f291a;
-      color: #22c55e;
-    }
-
-    .badge-booked {
-      background: #1e1b4b;
-      color: #a78bfa;
-    }
-
-    .badge-gray {
-      background: #1a1a1a;
+    .lead-date {
+      font-size: 11px;
       color: #666;
+      margin-top: 8px;
     }
 
+    /* Buttons */
     .btn {
-      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 500;
+      cursor: pointer;
       transition: all 0.2s;
     }
 
@@ -235,32 +371,176 @@
       background: #333;
     }
 
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: #1a1a1a;
+      padding: 4px;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 13px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .tab:hover:not(.active) {
+      color: #fff;
     }
 
     /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 40px 20px;
+      padding: 60px 20px;
       color: #666;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Settings Section */
+    .settings-section {
       background: #111;
       border: 1px solid #222;
-      border-radius: 8px;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
     }
 
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
+    .settings-section h3 {
+      font-size: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #222;
     }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      font-size: 18px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 24px;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #222;
+    }
+
+    /* Spinner */
     .spinner {
       display: inline-block;
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       border: 2px solid #333;
       border-radius: 50%;
       border-top-color: #2563eb;
@@ -271,72 +551,68 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Login redirect screen */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    /* Login redirect */
     .login-redirect {
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      margin: -20px;
     }
 
     .redirect-box {
       background: #111;
       border: 1px solid #222;
-      border-radius: 12px;
-      padding: 40px;
+      border-radius: 16px;
+      padding: 48px;
       text-align: center;
       max-width: 400px;
     }
 
     .redirect-box h2 {
-      color: #fff;
-      margin-bottom: 15px;
+      font-size: 24px;
+      margin-bottom: 12px;
     }
 
     .redirect-box p {
-      color: #666;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-
-    .redirect-box .btn {
-      padding: 12px 24px;
-      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
     }
 
     .hidden { display: none !important; }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 5px;
-      margin-bottom: 15px;
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .tab {
-      padding: 8px 16px;
-      background: none;
-      border: none;
-      color: #666;
-      cursor: pointer;
-      font-size: 13px;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
-
-    .tab.active {
-      background: #1a1a1a;
-      color: #fff;
-    }
-
-    .tab:hover {
-      color: #fff;
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+      .main {
+        margin-left: 0;
+        padding: 20px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Login Required Screen -->
+  <!-- Login Required -->
   <div id="login-required" class="login-redirect hidden">
     <div class="redirect-box">
       <h2>Session Expired</h2>
@@ -345,80 +621,235 @@
     </div>
   </div>
 
-  <!-- Dashboard -->
-  <div id="dashboard" class="container hidden">
-    <div class="header">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <img src="/logo.png" alt="Jalendr" style="width: 36px; height: 36px; border-radius: 6px;">
-        <h1>Dashboard</h1>
+  <!-- App -->
+  <div id="app" class="hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <img src="/logo.png" alt="Jalendr">
+        <span>Jalendr</span>
       </div>
-      <div class="header-right">
-        <span class="company-name" id="company-name"></span>
-        <button class="logout-btn" onclick="logout()">Logout</button>
-      </div>
-    </div>
 
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-today">-</div>
-        <div class="stat-label">Today's Appointments</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-week">-</div>
-        <div class="stat-label">This Week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-new-leads">-</div>
-        <div class="stat-label">New Leads</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-total-leads">-</div>
-        <div class="stat-label">Total Leads</div>
-      </div>
-    </div>
+      <nav class="nav-items">
+        <button class="nav-item active" data-page="dashboard">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-page="appointments">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          Appointments
+        </button>
+        <button class="nav-item" data-page="leads">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          Leads
+        </button>
+        <button class="nav-item" data-page="settings">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Settings
+        </button>
+      </nav>
 
-    <!-- Today's Appointments -->
-    <div class="section">
-      <div class="section-header">
-        <h2>Today's Appointments</h2>
+      <div class="sidebar-footer">
+        <div class="company-badge">
+          <p>Logged in as</p>
+          <h4 id="company-name">Loading...</h4>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+          Logout
+        </button>
       </div>
-      <div id="appointments-list">
-        <div class="loading"><span class="spinner"></span></div>
-      </div>
-    </div>
+    </aside>
 
-    <!-- Leads -->
-    <div class="section">
-      <div class="section-header">
-        <h2>Leads</h2>
-        <div class="tabs">
-          <button class="tab active" data-filter="new">New</button>
-          <button class="tab" data-filter="contacted">Contacted</button>
-          <button class="tab" data-filter="all">All</button>
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Dashboard Page -->
+      <div id="page-dashboard" class="page active">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+          <p>Welcome back! Here's what's happening today.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card highlight">
+            <p class="stat-label">Today's Appointments</p>
+            <p class="stat-value" id="stat-today">-</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">This Week</p>
+            <p class="stat-value" id="stat-week">-</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">New Leads</p>
+            <p class="stat-value" id="stat-new-leads">-</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-label">Total Leads</p>
+            <p class="stat-value" id="stat-total-leads">-</p>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Today's Appointments</h3>
+            </div>
+            <div id="today-appointments">
+              <div class="loading"><span class="spinner"></span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Recent Leads</h3>
+              <button class="btn btn-sm btn-secondary" onclick="showPage('leads')">View All</button>
+            </div>
+            <div id="recent-leads">
+              <div class="loading"><span class="spinner"></span></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="leads-list">
-        <div class="loading"><span class="spinner"></span></div>
+
+      <!-- Appointments Page -->
+      <div id="page-appointments" class="page">
+        <div class="page-header">
+          <h1>Appointments</h1>
+          <p>Your upcoming scheduled appointments.</p>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-apt-filter="today">Today</button>
+          <button class="tab" data-apt-filter="upcoming">Upcoming</button>
+        </div>
+
+        <div class="card">
+          <div id="appointments-list">
+            <div class="loading"><span class="spinner"></span></div>
+          </div>
+        </div>
       </div>
+
+      <!-- Leads Page -->
+      <div id="page-leads" class="page">
+        <div class="page-header">
+          <h1>Leads</h1>
+          <p>Manage and follow up with your leads.</p>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-lead-filter="all">All</button>
+          <button class="tab" data-lead-filter="new">New</button>
+          <button class="tab" data-lead-filter="contacted">Contacted</button>
+          <button class="tab" data-lead-filter="booked">Booked</button>
+        </div>
+
+        <div class="card">
+          <div id="leads-list">
+            <div class="loading"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Page -->
+      <div id="page-settings" class="page">
+        <div class="page-header">
+          <h1>Settings</h1>
+          <p>Manage your business settings and preferences.</p>
+        </div>
+
+        <form id="settings-form">
+          <div class="settings-section">
+            <h3>Business Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="setting-company" placeholder="Your Company Name">
+              </div>
+              <div class="form-group">
+                <label>Owner Name</label>
+                <input type="text" id="setting-owner" placeholder="Your Name">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="setting-email" placeholder="email@example.com">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="setting-phone" placeholder="(555) 555-5555">
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>Business Hours</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Start Time</label>
+                <input type="time" id="setting-hours-start" value="08:00">
+              </div>
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="time" id="setting-hours-end" value="17:00">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Timezone</label>
+                <select id="setting-timezone">
+                  <option value="America/New_York">Eastern (New York)</option>
+                  <option value="America/Chicago">Central (Chicago)</option>
+                  <option value="America/Denver">Mountain (Denver)</option>
+                  <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Appointment Duration</label>
+                <select id="setting-duration">
+                  <option value="30">30 minutes</option>
+                  <option value="60">1 hour</option>
+                  <option value="90">1.5 hours</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Lead Detail Modal -->
+  <div class="modal-overlay" id="lead-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Lead Details</h2>
+        <button class="modal-close" onclick="closeLeadModal()">&times;</button>
+      </div>
+      <div id="lead-modal-content"></div>
     </div>
   </div>
 
   <script>
     let sessionToken = null;
+    let clientData = null;
     let allLeads = [];
-    let currentFilter = 'new';
+    let allAppointments = [];
+    let currentLeadFilter = 'all';
+    let currentAptFilter = 'today';
 
     // Initialize
     init();
 
     async function init() {
-      // Get session from URL or localStorage
       const urlParams = new URLSearchParams(window.location.search);
       sessionToken = urlParams.get('session') || localStorage.getItem('jalendr_session');
 
       if (urlParams.get('session')) {
-        // Store in localStorage and clean URL
         localStorage.setItem('jalendr_session', sessionToken);
         window.history.replaceState({}, document.title, '/customer-dashboard.html');
       }
@@ -428,18 +859,13 @@
         return;
       }
 
-      // Verify session by loading stats
       try {
         const stats = await apiFetch('/customer/stats');
-        if (!stats.success) {
-          throw new Error('Invalid session');
-        }
+        if (!stats.success) throw new Error('Invalid session');
 
-        // Session valid - show dashboard
-        showDashboard();
+        showApp();
         updateStats(stats.stats);
-        loadAppointments();
-        loadLeads();
+        loadAllData();
       } catch (err) {
         console.error('Session invalid:', err);
         localStorage.removeItem('jalendr_session');
@@ -447,7 +873,6 @@
       }
     }
 
-    // API helper
     async function apiFetch(url, options = {}) {
       const headers = {
         'Content-Type': 'application/json',
@@ -468,12 +893,20 @@
 
     function showLoginRequired() {
       document.getElementById('login-required').classList.remove('hidden');
-      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('app').classList.add('hidden');
     }
 
-    function showDashboard() {
+    function showApp() {
       document.getElementById('login-required').classList.add('hidden');
-      document.getElementById('dashboard').classList.remove('hidden');
+      document.getElementById('app').classList.remove('hidden');
+    }
+
+    async function loadAllData() {
+      await Promise.all([
+        loadAppointments(),
+        loadLeads(),
+        loadSettings()
+      ]);
     }
 
     function updateStats(stats) {
@@ -485,127 +918,258 @@
 
     async function loadAppointments() {
       try {
-        const data = await apiFetch('/customer/appointments/today');
-        const list = document.getElementById('appointments-list');
+        const [todayData, upcomingData] = await Promise.all([
+          apiFetch('/customer/appointments/today'),
+          apiFetch('/customer/appointments/upcoming')
+        ]);
 
-        if (!data.appointments || data.appointments.length === 0) {
-          list.innerHTML = '<div class="empty-state">No appointments scheduled for today.</div>';
-          return;
-        }
+        const todayApts = todayData.appointments || [];
+        allAppointments = upcomingData.appointments || [];
 
-        list.innerHTML = data.appointments.map(apt => `
-          <div class="card appointment-card">
-            <div class="appointment-time">${apt.startFormatted}</div>
-            <div class="appointment-info">
-              <h3>${escapeHtml(apt.summary)}</h3>
-              ${apt.description ? `<p>${escapeHtml(extractCustomerInfo(apt.description))}</p>` : ''}
-            </div>
-          </div>
-        `).join('');
+        renderTodayAppointments(todayApts);
+        renderAppointmentsList();
       } catch (err) {
         console.error('Failed to load appointments:', err);
-        document.getElementById('appointments-list').innerHTML =
-          '<div class="empty-state">Failed to load appointments.</div>';
       }
+    }
+
+    function renderTodayAppointments(appointments) {
+      const container = document.getElementById('today-appointments');
+
+      if (!appointments.length) {
+        container.innerHTML = '<div class="empty-state"><p>No appointments today</p></div>';
+        return;
+      }
+
+      container.innerHTML = appointments.slice(0, 5).map(apt => `
+        <div class="appointment-item">
+          <div class="appointment-time">
+            <p class="time">${apt.startFormatted}</p>
+          </div>
+          <div class="appointment-details">
+            <h4>${escapeHtml(apt.summary)}</h4>
+            <p>${escapeHtml(extractInfo(apt.description, 'Phone') || 'No details')}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAppointmentsList() {
+      const container = document.getElementById('appointments-list');
+      const apts = currentAptFilter === 'today'
+        ? allAppointments.filter(a => isToday(a.start))
+        : allAppointments;
+
+      if (!apts.length) {
+        container.innerHTML = `<div class="empty-state"><p>No ${currentAptFilter} appointments</p></div>`;
+        return;
+      }
+
+      container.innerHTML = apts.map(apt => `
+        <div class="appointment-item">
+          <div class="appointment-time">
+            <p class="time">${apt.startFormatted}</p>
+          </div>
+          <div class="appointment-details">
+            <h4>${escapeHtml(apt.summary)}</h4>
+            <p>${escapeHtml(extractInfo(apt.description, 'Phone') || 'No details')}</p>
+          </div>
+          ${!isToday(apt.start) ? `<span class="appointment-date">${formatShortDate(apt.start)}</span>` : ''}
+        </div>
+      `).join('');
     }
 
     async function loadLeads() {
       try {
         const data = await apiFetch('/customer/leads');
         allLeads = data.leads || [];
-        renderLeads();
+        renderRecentLeads();
+        renderLeadsList();
       } catch (err) {
         console.error('Failed to load leads:', err);
-        document.getElementById('leads-list').innerHTML =
-          '<div class="empty-state">Failed to load leads.</div>';
       }
     }
 
-    function renderLeads() {
-      const list = document.getElementById('leads-list');
+    function renderRecentLeads() {
+      const container = document.getElementById('recent-leads');
 
-      let filtered = allLeads;
-      if (currentFilter === 'new') {
-        filtered = allLeads.filter(l => l.status === 'new');
-      } else if (currentFilter === 'contacted') {
-        filtered = allLeads.filter(l => l.status === 'contacted');
-      }
-
-      if (filtered.length === 0) {
-        const msg = currentFilter === 'new' ? 'No new leads.' :
-                    currentFilter === 'contacted' ? 'No contacted leads.' :
-                    'No leads yet.';
-        list.innerHTML = `<div class="empty-state">${msg}</div>`;
+      if (!allLeads.length) {
+        container.innerHTML = '<div class="empty-state"><p>No leads yet</p></div>';
         return;
       }
 
-      list.innerHTML = filtered.map(lead => `
-        <div class="card lead-card" id="lead-${lead.id}">
+      container.innerHTML = allLeads.slice(0, 5).map(lead => `
+        <div class="lead-item" onclick="openLeadModal('${lead.id}')">
           <div class="lead-info">
-            <h3>${escapeHtml(lead.name || 'Unknown')}</h3>
-            <p>${escapeHtml(lead.phone || 'No phone')}${lead.address ? ' - ' + escapeHtml(lead.address) : ''}</p>
-            <p>${escapeHtml(lead.job_type || 'No job type specified')}</p>
-            ${lead.notes ? `<p class="notes">"${escapeHtml(lead.notes)}"</p>` : ''}
+            <h4>${escapeHtml(lead.name || 'Unknown')}</h4>
+            <p>${escapeHtml(lead.job_type || 'No job type')}</p>
           </div>
-          <div class="lead-actions">
-            <span class="badge ${lead.status === 'new' ? 'badge-new' : lead.status === 'booked' ? 'badge-booked' : 'badge-contacted'}">${lead.status}</span>
-            ${lead.status === 'new' ? `
-              <button class="btn btn-primary" onclick="markContacted('${lead.id}')">Mark Contacted</button>
-            ` : ''}
-            <span style="color: #666; font-size: 11px;">${formatDate(lead.created_at)}</span>
+          <div class="lead-meta">
+            <span class="badge badge-${lead.status}">${lead.status}</span>
+            <p class="lead-date">${formatDate(lead.created_at)}</p>
           </div>
         </div>
       `).join('');
     }
 
-    async function markContacted(leadId) {
-      const btn = document.querySelector(`#lead-${leadId} .btn-primary`);
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Updating...';
+    function renderLeadsList() {
+      const container = document.getElementById('leads-list');
+      let filtered = allLeads;
+
+      if (currentLeadFilter !== 'all') {
+        filtered = allLeads.filter(l => l.status === currentLeadFilter);
       }
 
+      if (!filtered.length) {
+        container.innerHTML = `<div class="empty-state"><p>No ${currentLeadFilter} leads</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(lead => `
+        <div class="lead-item" onclick="openLeadModal('${lead.id}')">
+          <div class="lead-info">
+            <h4>${escapeHtml(lead.name || 'Unknown')}</h4>
+            <p>${escapeHtml(lead.phone || 'No phone')} ${lead.address ? '- ' + escapeHtml(lead.address) : ''}</p>
+            <p>${escapeHtml(lead.job_type || 'No job type')}</p>
+          </div>
+          <div class="lead-meta">
+            <span class="badge badge-${lead.status}">${lead.status}</span>
+            <p class="lead-date">${formatDate(lead.created_at)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadSettings() {
       try {
-        const data = await apiFetch(`/customer/leads/${leadId}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'contacted' })
-        });
-
-        if (data.success) {
-          // Update local data
-          const lead = allLeads.find(l => l.id === leadId);
-          if (lead) lead.status = 'contacted';
-
-          // Update stats
-          const newCount = allLeads.filter(l => l.status === 'new').length;
-          document.getElementById('stat-new-leads').textContent = newCount;
-
-          renderLeads();
-        }
+        const data = await apiFetch('/customer/stats');
+        // The client data comes from the session - we'll need to add an endpoint for this
+        // For now, just set company name from what we have
       } catch (err) {
-        console.error('Failed to update lead:', err);
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = 'Mark Contacted';
-        }
+        console.error('Failed to load settings:', err);
       }
     }
+
+    function openLeadModal(leadId) {
+      const lead = allLeads.find(l => l.id === leadId);
+      if (!lead) return;
+
+      const content = document.getElementById('lead-modal-content');
+      content.innerHTML = `
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" value="${escapeHtml(lead.name || '')}" readonly>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" value="${escapeHtml(lead.phone || '')}" readonly>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="modal-lead-status">
+              <option value="new" ${lead.status === 'new' ? 'selected' : ''}>New</option>
+              <option value="contacted" ${lead.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+              <option value="booked" ${lead.status === 'booked' ? 'selected' : ''}>Booked</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" value="${escapeHtml(lead.address || '')}" readonly>
+        </div>
+        <div class="form-group">
+          <label>Job Type</label>
+          <input type="text" value="${escapeHtml(lead.job_type || '')}" readonly>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea readonly rows="3">${escapeHtml(lead.notes || 'No notes')}</textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeLeadModal()">Close</button>
+          <button type="button" class="btn btn-primary" onclick="updateLeadStatus('${lead.id}')">Update Status</button>
+        </div>
+      `;
+
+      document.getElementById('lead-modal').classList.add('active');
+    }
+
+    function closeLeadModal() {
+      document.getElementById('lead-modal').classList.remove('active');
+    }
+
+    async function updateLeadStatus(leadId) {
+      const status = document.getElementById('modal-lead-status').value;
+
+      try {
+        await apiFetch(`/customer/leads/${leadId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status })
+        });
+
+        const lead = allLeads.find(l => l.id === leadId);
+        if (lead) lead.status = status;
+
+        renderRecentLeads();
+        renderLeadsList();
+        closeLeadModal();
+
+        // Refresh stats
+        const stats = await apiFetch('/customer/stats');
+        updateStats(stats.stats);
+      } catch (err) {
+        console.error('Failed to update lead:', err);
+      }
+    }
+
+    // Settings form
+    document.getElementById('settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alert('Settings saved! (Backend integration pending)');
+    });
+
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const page = item.dataset.page;
+        showPage(page);
+      });
+    });
+
+    function showPage(page) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+      document.querySelector(`[data-page="${page}"]`).classList.add('active');
+      document.getElementById(`page-${page}`).classList.add('active');
+    }
+
+    // Lead filter tabs
+    document.querySelectorAll('[data-lead-filter]').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('[data-lead-filter]').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentLeadFilter = tab.dataset.leadFilter;
+        renderLeadsList();
+      });
+    });
+
+    // Appointment filter tabs
+    document.querySelectorAll('[data-apt-filter]').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('[data-apt-filter]').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentAptFilter = tab.dataset.aptFilter;
+        renderAppointmentsList();
+      });
+    });
 
     function logout() {
       apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
       localStorage.removeItem('jalendr_session');
       window.location.href = '/login.html';
     }
-
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentFilter = tab.dataset.filter;
-        renderLeads();
-      });
-    });
 
     // Helpers
     function escapeHtml(text) {
@@ -615,16 +1179,26 @@
       return div.innerHTML;
     }
 
-    function extractCustomerInfo(description) {
+    function extractInfo(description, key) {
       if (!description) return '';
-      // Extract phone from description
-      const phoneMatch = description.match(/Phone:\s*([^\n]+)/);
-      return phoneMatch ? phoneMatch[1].trim() : '';
+      const match = description.match(new RegExp(`${key}:\\s*([^\\n]+)`));
+      return match ? match[1].trim() : '';
     }
 
     function formatDate(dateStr) {
       const date = new Date(dateStr);
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function formatShortDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    function isToday(dateStr) {
+      const date = new Date(dateStr);
+      const today = new Date();
+      return date.toDateString() === today.toDateString();
     }
   </script>
 </body>
