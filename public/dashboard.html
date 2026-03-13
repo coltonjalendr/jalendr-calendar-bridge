@@ -565,19 +565,177 @@
     .page { display: none; }
     .page.active { display: block; }
 
+    /* Mobile Header */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #111;
+      border-bottom: 1px solid #222;
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 40;
+    }
+
+    .mobile-header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mobile-header-logo img {
+      width: 28px;
+      height: 28px;
+    }
+
+    .mobile-header-logo span {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .hamburger {
+      background: none;
+      border: none;
+      color: #fff;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .hamburger svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 45;
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    /* Charts */
+    .chart-container {
+      margin-top: 20px;
+    }
+
+    .chart-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .chart-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chart-header span {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 120px;
+      padding-top: 10px;
+    }
+
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 40px;
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.3s ease;
+    }
+
+    .bar-label {
+      font-size: 11px;
+      color: #666;
+    }
+
+    .bar-value {
+      font-size: 11px;
+      color: #888;
+      position: absolute;
+      top: -18px;
+    }
+
+    .bar-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
     /* Responsive */
     @media (max-width: 1200px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .two-column { grid-template-columns: 1fr; }
     }
+
     @media (max-width: 768px) {
+      .mobile-header {
+        display: flex;
+      }
+
       .sidebar {
         transform: translateX(-100%);
+        transition: transform 0.3s ease;
         z-index: 50;
       }
-      .main-content { margin-left: 0; }
-      .stats-grid { grid-template-columns: 1fr; }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 80px 16px 20px;
+      }
+
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .form-row { grid-template-columns: 1fr; }
+
+      .data-table th,
+      .data-table td {
+        padding: 10px 8px;
+        font-size: 12px;
+      }
+
+      .bar-chart {
+        height: 80px;
+      }
     }
   </style>
 </head>
@@ -596,6 +754,20 @@
 
   <!-- Main App -->
   <div id="app" class="app-container hidden">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="mobile-header-logo">
+        <img src="/logo.png" alt="Jalendr">
+        <span>Jalendr</span>
+      </div>
+      <button class="hamburger" onclick="toggleSidebar()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Sidebar -->
     <nav class="sidebar">
       <div class="sidebar-header">
@@ -707,6 +879,25 @@
             </div>
             <div class="card-body" id="recent-activity">
               <div class="empty-state">Loading...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lead Trends Chart -->
+        <div class="chart-container">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Lead Activity</h3>
+              <span>Last 7 days</span>
+            </div>
+            <div class="bar-chart" id="leads-chart">
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
+              <div class="bar-group"><div class="bar" style="height: 0%"></div><span class="bar-label">-</span></div>
             </div>
           </div>
         </div>
@@ -1154,6 +1345,9 @@
         // Render recent activity
         renderRecentActivity();
 
+        // Render chart
+        renderLeadsChart();
+
       } catch (err) {
         console.error('Failed to load leads:', err);
       }
@@ -1412,6 +1606,60 @@
       const url = window.location.origin + '/oauth/google/start?client_id=' + clientId;
       navigator.clipboard.writeText(url);
       alert('OAuth link copied!');
+    }
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('active');
+    }
+
+    // Close sidebar when clicking a nav item on mobile
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.querySelector('.sidebar').classList.remove('open');
+          document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+      });
+    });
+
+    // Render leads chart
+    function renderLeadsChart() {
+      const chart = document.getElementById('leads-chart');
+      if (!chart) return;
+
+      const days = [];
+      const counts = [];
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        days.push(date);
+
+        const count = allLeads.filter(lead => {
+          const leadDate = new Date(lead.created_at);
+          return leadDate.toDateString() === date.toDateString();
+        }).length;
+        counts.push(count);
+      }
+
+      const maxCount = Math.max(...counts, 1);
+
+      chart.innerHTML = days.map((date, i) => {
+        const height = (counts[i] / maxCount) * 100;
+        const dayName = dayNames[date.getDay()];
+        return `
+          <div class="bar-group">
+            <div class="bar-wrapper">
+              ${counts[i] > 0 ? `<span class="bar-value">${counts[i]}</span>` : ''}
+              <div class="bar" style="height: ${Math.max(height, 4)}%"></div>
+            </div>
+            <span class="bar-label">${dayName}</span>
+          </div>
+        `;
+      }).join('');
     }
   </script>
 </body>
