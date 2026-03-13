@@ -861,6 +861,51 @@ app.patch("/admin/clients/:id", requireAdminAuth, async (req, res) => {
   }
 });
 
+// -------- Delete Client (Admin) --------
+app.delete("/admin/clients/:id", requireAdminAuth, async (req, res) => {
+  try {
+    const clientId = req.params.id;
+
+    // Delete associated leads first (or they'll be orphaned)
+    await supabase
+      .from("leads")
+      .delete()
+      .eq("client_id", clientId);
+
+    // Delete associated sessions
+    await supabase
+      .from("client_sessions")
+      .delete()
+      .eq("client_id", clientId);
+
+    // Delete associated magic link tokens
+    await supabase
+      .from("magic_link_tokens")
+      .delete()
+      .eq("client_id", clientId);
+
+    // Delete the client
+    const { error } = await supabase
+      .from("clients")
+      .delete()
+      .eq("id", clientId);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: "Client deleted successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to delete client",
+      error: err?.message || String(err),
+    });
+  }
+});
+
 // -------- Demo Call (Website Callback) --------
 app.post("/api/demo-call", async (req, res) => {
   try {
@@ -1160,17 +1205,17 @@ app.get("/customer/leads", requireClientAuth, async (req, res) => {
   }
 });
 
-// -------- Customer: Update Lead Status --------
+// -------- Customer: Update Lead --------
 app.patch("/customer/leads/:id", requireClientAuth, async (req, res) => {
   try {
     const client = req.client;
     const leadId = req.params.id;
-    const { status } = req.body;
+    const { status, notes } = req.body;
 
-    if (!status) {
+    if (!status && notes === undefined) {
       return res.status(400).json({
         status: "error",
-        message: "Status is required"
+        message: "Status or notes is required"
       });
     }
 
@@ -1189,10 +1234,15 @@ app.patch("/customer/leads/:id", requireClientAuth, async (req, res) => {
       });
     }
 
-    // Update lead status
+    // Build update object
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (notes !== undefined) updateData.notes = notes;
+
+    // Update lead
     const { data: updated, error } = await supabase
       .from("leads")
-      .update({ status })
+      .update(updateData)
       .eq("id", leadId)
       .select()
       .single();

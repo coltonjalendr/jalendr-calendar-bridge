@@ -1084,11 +1084,11 @@
         </div>
         <div class="form-group">
           <label>Notes</label>
-          <textarea readonly rows="3">${escapeHtml(lead.notes || 'No notes')}</textarea>
+          <textarea id="modal-lead-notes" rows="3" placeholder="Add notes about this lead...">${escapeHtml(lead.notes || '')}</textarea>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeLeadModal()">Close</button>
-          <button type="button" class="btn btn-primary" onclick="updateLeadStatus('${lead.id}')">Update Status</button>
+          <button type="button" class="btn btn-primary" onclick="updateLead('${lead.id}')">Save Changes</button>
         </div>
       `;
 
@@ -1099,17 +1099,21 @@
       document.getElementById('lead-modal').classList.remove('active');
     }
 
-    async function updateLeadStatus(leadId) {
+    async function updateLead(leadId) {
       const status = document.getElementById('modal-lead-status').value;
+      const notes = document.getElementById('modal-lead-notes').value;
 
       try {
         await apiFetch(`/customer/leads/${leadId}`, {
           method: 'PATCH',
-          body: JSON.stringify({ status })
+          body: JSON.stringify({ status, notes })
         });
 
         const lead = allLeads.find(l => l.id === leadId);
-        if (lead) lead.status = status;
+        if (lead) {
+          lead.status = status;
+          lead.notes = notes;
+        }
 
         renderRecentLeads();
         renderLeadsList();

@@ -1088,6 +1088,7 @@
               <button class="btn btn-ghost btn-small" onclick="editClient('${client.id}')">Edit</button>
               <button class="btn btn-ghost btn-small" onclick="copyOAuthLink('${client.id}')">OAuth Link</button>
               <button class="btn btn-ghost btn-small" onclick="copyToClipboard('${client.id}')">Copy ID</button>
+              <button class="btn btn-ghost btn-small" style="color: #ef4444;" onclick="deleteClient('${client.id}', '${client.company_name}')">Delete</button>
             </div>
           </td>
         </tr>
@@ -1376,6 +1377,29 @@
       a.download = `jalendr-leads-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    // Delete client
+    async function deleteClient(clientId, companyName) {
+      if (!confirm(`Are you sure you want to delete "${companyName}"?\n\nThis will also delete all their leads and sessions. This cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const result = await apiFetch(`/admin/clients/${clientId}`, {
+          method: 'DELETE',
+        });
+
+        if (result.success) {
+          alert('Client deleted successfully');
+          loadClients();
+          loadLeads();
+        } else {
+          alert('Error: ' + result.message);
+        }
+      } catch (err) {
+        alert('Failed to delete client');
+      }
     }
 
     // Copy helpers
