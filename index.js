@@ -1262,6 +1262,91 @@ app.patch("/customer/leads/:id", requireClientAuth, async (req, res) => {
   }
 });
 
+// -------- Customer: Get Settings --------
+app.get("/customer/settings", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+
+    res.json({
+      success: true,
+      settings: {
+        company_name: client.company_name,
+        owner_name: client.owner_name,
+        email: client.email,
+        phone_number: client.phone_number,
+        timezone: client.timezone,
+        hours_start: client.hours_start,
+        hours_end: client.hours_end,
+        appointment_duration_minutes: client.appointment_duration_minutes,
+      },
+    });
+  } catch (err) {
+    console.error("Get settings error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to get settings"
+    });
+  }
+});
+
+// -------- Customer: Update Settings --------
+app.patch("/customer/settings", requireClientAuth, async (req, res) => {
+  try {
+    const client = req.client;
+    const {
+      company_name,
+      owner_name,
+      email,
+      phone_number,
+      timezone,
+      hours_start,
+      hours_end,
+      appointment_duration_minutes,
+    } = req.body;
+
+    const updateData = {};
+    if (company_name !== undefined) updateData.company_name = company_name;
+    if (owner_name !== undefined) updateData.owner_name = owner_name;
+    if (email !== undefined) updateData.email = email;
+    if (phone_number !== undefined) updateData.phone_number = phone_number;
+    if (timezone !== undefined) updateData.timezone = timezone;
+    if (hours_start !== undefined) updateData.hours_start = hours_start;
+    if (hours_end !== undefined) updateData.hours_end = hours_end;
+    if (appointment_duration_minutes !== undefined) {
+      updateData.appointment_duration_minutes = parseInt(appointment_duration_minutes);
+    }
+
+    const { data, error } = await supabase
+      .from("clients")
+      .update(updateData)
+      .eq("id", client.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      settings: {
+        company_name: data.company_name,
+        owner_name: data.owner_name,
+        email: data.email,
+        phone_number: data.phone_number,
+        timezone: data.timezone,
+        hours_start: data.hours_start,
+        hours_end: data.hours_end,
+        appointment_duration_minutes: data.appointment_duration_minutes,
+      },
+    });
+  } catch (err) {
+    console.error("Update settings error:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to update settings"
+    });
+  }
+});
+
 // -------- Magic Link: Send Login Email --------
 app.post("/auth/magic-link", magicLinkLimiter, async (req, res) => {
   try {

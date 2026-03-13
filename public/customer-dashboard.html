@@ -1042,9 +1042,18 @@
 
     async function loadSettings() {
       try {
-        const data = await apiFetch('/customer/stats');
-        // The client data comes from the session - we'll need to add an endpoint for this
-        // For now, just set company name from what we have
+        const data = await apiFetch('/customer/settings');
+        if (data.success && data.settings) {
+          const s = data.settings;
+          document.getElementById('setting-company').value = s.company_name || '';
+          document.getElementById('setting-owner').value = s.owner_name || '';
+          document.getElementById('setting-email').value = s.email || '';
+          document.getElementById('setting-phone').value = s.phone_number || '';
+          document.getElementById('setting-hours-start').value = s.hours_start || '08:00';
+          document.getElementById('setting-hours-end').value = s.hours_end || '17:00';
+          document.getElementById('setting-timezone').value = s.timezone || 'America/Chicago';
+          document.getElementById('setting-duration').value = s.appointment_duration_minutes || 60;
+        }
       } catch (err) {
         console.error('Failed to load settings:', err);
       }
@@ -1130,7 +1139,42 @@
     // Settings form
     document.getElementById('settings-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      alert('Settings saved! (Backend integration pending)');
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      try {
+        const data = await apiFetch('/customer/settings', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            company_name: document.getElementById('setting-company').value,
+            owner_name: document.getElementById('setting-owner').value,
+            email: document.getElementById('setting-email').value,
+            phone_number: document.getElementById('setting-phone').value,
+            hours_start: document.getElementById('setting-hours-start').value,
+            hours_end: document.getElementById('setting-hours-end').value,
+            timezone: document.getElementById('setting-timezone').value,
+            appointment_duration_minutes: document.getElementById('setting-duration').value,
+          })
+        });
+
+        if (data.success) {
+          btn.textContent = 'Saved!';
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }, 2000);
+        } else {
+          throw new Error(data.message || 'Failed to save');
+        }
+      } catch (err) {
+        console.error('Failed to save settings:', err);
+        alert('Failed to save settings. Please try again.');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
     });
 
     // Navigation
